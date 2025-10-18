@@ -211,7 +211,8 @@ export function headersForLogging(
 /**
  * Converts Headers into a plain object suitable for structured logging.
  *
- * When a header key includes 'token' (case-insensitive), its value is masked as '***'.
+ * When a header key includes 'token' or 'auth' (case-insensitive),
+ * its value is masked as '***'.
  *
  * @param headers
  * @returns
@@ -219,7 +220,9 @@ export function headersForLogging(
 function headersToObject(headers: Headers): Record<string, string> {
   const out: Record<string, string> = {};
   headers.forEach((value, key) => {
-    out[key] = key.toLowerCase().includes('token') ? '***' : value;
+    const keyLower = key.toLowerCase();
+    out[key] =
+      keyLower.includes('token') || keyLower.includes('auth') ? '***' : value;
   });
   return out;
 }

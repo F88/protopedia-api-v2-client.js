@@ -116,7 +116,7 @@ describe('headersForLogging', () => {
     const result = headersForLogging(headers);
 
     expect(result).toEqual({
-      authorization: 'Bearer abc',
+      authorization: '***',
       'x-token': '***',
       'x-api-token': '***',
       accept: 'application/json',
@@ -153,21 +153,56 @@ describe('headersToObject', () => {
     });
   });
 
-  it('masks token headers from Headers instance', () => {
-    const headers = new Headers({
-      Authorization: 'Bearer abc',
-      'X-Token': 'secret',
-      'X-Api-Token': 'also-secret',
-      Accept: 'application/json',
-    });
+  describe('masking header value', () => {
+    const MASKABLE_HEADER_NAME_EXAMPLES = [
+      'Authorization',
+      'AUTHORIZATION',
+      'X-Auth',
+      'x-Authentication',
+      'WWW-Authenticate',
+      'Proxy-Authorization',
+      'X-Token',
+      'x-api-token',
+      'X-AUTH-TOKEN',
+    ] as const;
 
-    const result = headersForLogging(headers);
+    it.each(MASKABLE_HEADER_NAME_EXAMPLES)(
+      'masks %s header from Headers instance',
+      (name) => {
+        const headers = new Headers({
+          [name]: 'secret',
+          Accept: 'application/json',
+        });
+        const result = headersForLogging(headers)!;
+        expect(result[name.toLowerCase()]).toBe('***');
+        expect(result['accept']).toBe('application/json');
+      },
+    );
 
-    expect(result).toEqual({
-      authorization: 'Bearer abc',
-      'x-token': '***',
-      'x-api-token': '***',
-      accept: 'application/json',
-    });
+    it.each(MASKABLE_HEADER_NAME_EXAMPLES)(
+      'masks %s header from HeadersInit array',
+      (name) => {
+        const init: HeadersInit = [
+          [name, 'secret'],
+          ['Content-Type', 'text/plain'],
+        ];
+        const result = headersForLogging(init)!;
+        expect(result[name.toLowerCase()]).toBe('***');
+        expect(result['content-type']).toBe('text/plain');
+      },
+    );
+
+    it.each(MASKABLE_HEADER_NAME_EXAMPLES)(
+      'masks %s header from HeadersInit object',
+      (name) => {
+        const init = { [name]: 'secret', ETag: '123' } as Record<
+          string,
+          string
+        >;
+        const result = headersForLogging(init)!;
+        expect(result[name.toLowerCase()]).toBe('***');
+        expect(result['etag']).toBe('123');
+      },
+    );
   });
 });
