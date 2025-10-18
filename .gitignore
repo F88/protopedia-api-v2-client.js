@@ -15,9 +15,8 @@ npm-debug.log*
 dist/
 lib/
 .env
-test.env
+.env.*
 !env.example
-!test.env.example
 
 ## Test
 coverage/
