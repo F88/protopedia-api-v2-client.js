@@ -27,7 +27,8 @@ export interface ListPrototypesApiResponse {
 /**
  * Each item in the `results` array of `ListPrototypesApiResponse`.
  *
- * @remarks APIで定義された仕様ではなく、実際のデータをサンプリングした結果を基に定義した内容である。APIの仕様を定義するものではない為、APIにおいて仕様時変更発生した際などは発生対応する必要がある。
+ * @remarks APIで定義された仕様ではない。
+ * 実際のデータをサンプリングした結果を基に定義した内容である為、APIにおいて仕様時変更発生した際は、適宜対応する必要がある。
  */
 export interface ResultOfListPrototypesApiResponse {
   // ids
