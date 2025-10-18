@@ -245,12 +245,12 @@ describe('listPrototypes', () => {
 
 /**
  * ListPrototypesApiResponse.results に含まれる要素の型を確認する。
- * 型定義をもももしくは規定するものではない。
+ * 型定義を規定するものではない。
  * レスポンスの変更を検知することが主な目的である。
  */
 function assertResultOfListPrototypesApiResponse(data: unknown) {
-  // ListPrototypesApiResponse.results の
-  // data が ResultOfListPrototypesApiResponse 全てのプロパティを持つことを確認する。全てのプロパティはoptionalではなくである前提で検査する。
+  // ListPrototypesApiResponse.results の data が ResultOfListPrototypesApiResponse 全てのプロパティを持つことを確認する。
+  // 全てのプロパティはoptionalではなくである前提で検査する。
 
   expect(data).toBeDefined();
   expect(data).toBeInstanceOf(Object);
