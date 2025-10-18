@@ -1,3 +1,27 @@
+/**
+ * E2E tests for the listPrototypes API endpoint.
+ *
+ * Supported environment variables for these tests:
+ * - VITE_PROTOPEDIA_API_V2_BASE_URL: Base URL of the API
+ * - VITE_PROTOPEDIA_API_V2_TOKEN: API token used by tests
+ *
+ * CLI examples (macOS):
+ *   export VITE_PROTOPEDIA_API_V2_BASE_URL="https://protopedia.net/v2/api"
+ *   export VITE_PROTOPEDIA_API_V2_TOKEN="your-token"
+ *   npm run test:e2e
+ *
+ * Using dotenv:
+ *   cp .env.example .env
+ *   # edit .env and set values for the variables above
+ *   npm run test:e2e
+ *
+ * CI (GitHub Actions) example:
+ *   - name: E2E tests
+ *     run: npm run test:e2e
+ *     env:
+ *       VITE_PROTOPEDIA_API_V2_BASE_URL: https://protopedia.net/v2/api
+ *       VITE_PROTOPEDIA_API_V2_TOKEN: ${{ secrets.PROTOPEDIA_API_V2_TOKEN }}
+ */
 import { describe, expect, it } from 'vitest';
 
 import { ProtoPediaApiClient } from '../../src/client.js';
@@ -8,19 +32,23 @@ import type { ListPrototypesApiResponse } from '../../types/protopedia-api-v2/re
 import { createListPrototypesPassthroughHandlers } from '../integration/handlers/works.handlers.js';
 import { server } from '../integration/msw.setup.js';
 import { assertOkMetadata } from './helper.js';
-// import { env } from 'process';
+import { VERSION } from '../../src/version.js';
 
-const BASE_URL =
-  process.env.VITE_PROTOPEDIA_API_V2_BASE_URL || 'https://example.com/api/v2';
-const TOKEN = process.env.VITE_PROTOPEDIA_API_V2_TOKEN || 'default-token';
+const BASE_URL_FOR_TEST =
+  process.env.VITE_PROTOPEDIA_API_V2_BASE_URL ||
+  'https://protopedia.net/v2/api';
+const TOKEN_FOR_TEST =
+  process.env.VITE_PROTOPEDIA_API_V2_TOKEN || 'default-token';
+const USER_AGENT_FOR_TEST = `Test for ProtoPedia API Ver 2.0 Node.js Client/${VERSION}`;
 
 describe('listPrototypes', () => {
   it('should throw Error with invalid API key', async () => {
     server.use(...createListPrototypesPassthroughHandlers);
 
     const client = new ProtoPediaApiClient({
-      baseUrl: BASE_URL,
-      token: 'invalid-token',
+      baseUrl: BASE_URL_FOR_TEST,
+      token: 'INVALID_TOKEN_FOR_TEST',
+      userAgent: USER_AGENT_FOR_TEST,
     });
     try {
       await client.listPrototypes(
@@ -30,8 +58,8 @@ describe('listPrototypes', () => {
         },
         {
           // logLevel: 'silent',
-          logLevel: 'info',
-          // logLevel: 'debug',
+          // logLevel: 'info',
+          logLevel: 'debug',
         },
       );
       expect.fail('Should have thrown an error');
@@ -52,8 +80,9 @@ describe('listPrototypes', () => {
     server.use(...createListPrototypesPassthroughHandlers);
 
     const client = new ProtoPediaApiClient({
-      baseUrl: BASE_URL,
-      token: TOKEN,
+      baseUrl: BASE_URL_FOR_TEST,
+      token: TOKEN_FOR_TEST,
+      userAgent: USER_AGENT_FOR_TEST,
     });
 
     const response: ListPrototypesApiResponse = await client.listPrototypes(
@@ -63,8 +92,8 @@ describe('listPrototypes', () => {
       },
       {
         // logLevel: 'silent',
-        logLevel: 'info',
-        // logLevel: 'debug',
+        // logLevel: 'info',
+        logLevel: 'debug',
       },
     );
 
@@ -79,8 +108,9 @@ describe('listPrototypes', () => {
     server.use(...createListPrototypesPassthroughHandlers);
 
     const client = new ProtoPediaApiClient({
-      baseUrl: BASE_URL,
-      token: TOKEN,
+      baseUrl: BASE_URL_FOR_TEST,
+      token: TOKEN_FOR_TEST,
+      userAgent: USER_AGENT_FOR_TEST,
     });
 
     const response: ListPrototypesApiResponse = await client.listPrototypes(
@@ -123,8 +153,9 @@ describe('listPrototypes', () => {
     server.use(...createListPrototypesPassthroughHandlers);
 
     const client = new ProtoPediaApiClient({
-      baseUrl: BASE_URL,
-      token: TOKEN,
+      baseUrl: BASE_URL_FOR_TEST,
+      token: TOKEN_FOR_TEST,
+      userAgent: USER_AGENT_FOR_TEST,
     });
 
     const response: ListPrototypesApiResponse = await client.listPrototypes(
@@ -134,8 +165,8 @@ describe('listPrototypes', () => {
       },
       {
         // logLevel: 'silent',
-        logLevel: 'info',
-        // logLevel: 'debug',
+        // logLevel: 'info',
+        logLevel: 'debug',
       },
     );
 
@@ -166,8 +197,9 @@ describe('listPrototypes', () => {
     server.use(...createListPrototypesPassthroughHandlers);
 
     const client = new ProtoPediaApiClient({
-      baseUrl: BASE_URL,
-      token: TOKEN,
+      baseUrl: BASE_URL_FOR_TEST,
+      token: TOKEN_FOR_TEST,
+      userAgent: USER_AGENT_FOR_TEST,
     });
 
     const prototypeId = 1; // クラッピーで仮装大賞
@@ -182,8 +214,8 @@ describe('listPrototypes', () => {
       },
       {
         // logLevel: 'silent',
-        logLevel: 'info',
-        // logLevel: 'debug',
+        // logLevel: 'info',
+        logLevel: 'debug',
       },
     );
 
