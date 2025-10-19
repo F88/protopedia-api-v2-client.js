@@ -238,8 +238,6 @@ describe('listPrototypes', () => {
     const result = response.results[0];
     assertResultOfListPrototypesApiResponse(result);
     expect(result?.id).toBe(prototypeId);
-
-    console.debug({ result });
   });
 });
 
