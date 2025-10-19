@@ -6,6 +6,7 @@ import {
   getLoggerMethod,
   getLogLevelValue,
   headersForLogging,
+  headersToMaskedObject,
   normaliseLogLevel,
   shouldLog,
 } from '../../src/logger.js';
@@ -170,5 +171,81 @@ describe('headersForLogging', () => {
         expect(result['etag']).toBe('123');
       },
     );
+  });
+});
+
+describe('headersToMaskedObject', () => {
+  it('returns empty object for empty Headers', () => {
+    const headers = new Headers();
+    const result = headersToMaskedObject(headers);
+    expect(result).toEqual({});
+  });
+
+  it('preserves non-sensitive header values', () => {
+    const headers = new Headers({
+      'Content-Type': 'application/json',
+      'X-Custom-Header': 'custom-value',
+    });
+    const result = headersToMaskedObject(headers);
+    expect(result).toEqual({
+      'content-type': 'application/json',
+      'x-custom-header': 'custom-value',
+    });
+  });
+
+  it('masks values for keys containing token/auth (case-insensitive)', () => {
+    const headers = new Headers({
+      Authorization: 'Bearer secret',
+      'x-api-token': 'xyz',
+      Accept: 'application/json',
+    });
+    const result = headersToMaskedObject(headers);
+    expect(result).toEqual({
+      authorization: '***',
+      'x-api-token': '***',
+      accept: 'application/json',
+    });
+  });
+
+  it('masks when auth appears as a substring in the key', () => {
+    const headers = new Headers({
+      'X-Authenticated-User': 'alice',
+      ETag: '123',
+    });
+    const result = headersToMaskedObject(headers);
+    expect(result).toEqual({
+      'x-authenticated-user': '***',
+      etag: '123',
+    });
+  });
+
+  describe('case-insensitive duplicate header names', () => {
+    it('set(): last set wins and key is normalised', () => {
+      const headers = new Headers();
+      headers.set('X-Custom', 'A');
+      headers.set('x-custom', 'B');
+
+      const result = headersToMaskedObject(headers);
+      expect(result).toEqual({ 'x-custom': 'B' });
+    });
+
+    it('append(): values are concatenated and key is normalised', () => {
+      const headers = new Headers();
+      headers.append('X-Feature', 'one');
+      headers.append('x-feature', 'two');
+
+      const result = headersToMaskedObject(headers);
+      expect(result).toEqual({ 'x-feature': 'one, two' });
+    });
+
+    it('masking still applies after case-insensitive set/append', () => {
+      const headers = new Headers();
+      headers.set('Authorization', 'Bearer x');
+      headers.append('authorization', 'Token y');
+
+      const result = headersToMaskedObject(headers);
+      // Whether a single or multiple values, masked field should be '***'
+      expect(result).toEqual({ authorization: '***' });
+    });
   });
 });

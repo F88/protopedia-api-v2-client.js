@@ -205,11 +205,11 @@ export function headersForLogging(
   }
 
   if (headers instanceof Headers) {
-    return headersToObject(headers);
+    return headersToMaskedObject(headers);
   }
 
   const constructed = new Headers(headers);
-  return headersToObject(constructed);
+  return headersToMaskedObject(constructed);
 }
 /**
  * Converts Headers into a plain object suitable for structured logging.
@@ -220,7 +220,9 @@ export function headersForLogging(
  * @param headers
  * @returns
  */
-function headersToObject(headers: Headers): Record<string, string> {
+export function headersToMaskedObject(
+  headers: Headers,
+): Record<string, string> {
   const out: Record<string, string> = {};
   headers.forEach((value, key) => {
     const keyLower = key.toLowerCase();
