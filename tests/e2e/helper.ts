@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import type { ListPrototypesApiResponse } from '../../types/protopedia-api-v2/response.js';
+import type { ListPrototypesApiResponse } from '../../src/types/protopedia-api-v2/response.js';
 
 /**
  * Assert that the metadata indicates a successful response

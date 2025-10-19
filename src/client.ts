@@ -1,13 +1,5 @@
-import type {
-  CreateClientFromEnvOptions,
-  ListPrototypesParams,
-  ProtoPediaApiClientOptions,
-  ProtoPediaApiRequestOptions,
-  ProtoPediaLogger,
-  ProtoPediaLogLevel,
-} from '../types/client/client.js';
-import type { ListPrototypesApiResponse } from '../types/protopedia-api-v2/response.js';
 import { ProtoPediaApiError } from './errors.js';
+import type { Logger, LogLevel } from './log.js';
 import {
   createLoggerConfig,
   getLoggerMethod,
@@ -18,6 +10,49 @@ import {
   type LoggerMethodLevel,
 } from './logger.js';
 import { VERSION } from './version.js';
+
+import type { ListPrototypesParams } from './types/protopedia-api-v2/request.js';
+import type { ListPrototypesApiResponse } from './types/protopedia-api-v2/response.js';
+
+/**
+ * @packageDocumentation
+ * Client-facing type definitions for configuring and interacting with the
+ * ProtoPedia API client.
+ *
+ * These types cover client options and environment helpers. Request parameter
+ * interfaces are maintained in `../../protopedia-api-v2/types/request.js` and
+ * re-exported here for convenience, while logging interfaces live in
+ * `./log.js`.
+ */
+
+export interface ProtoPediaApiClientOptions {
+  token?: string;
+  baseUrl?: string;
+  fetch?: typeof fetch;
+  userAgent?: string;
+  timeoutMs?: number;
+  logger?: Logger;
+  logLevel?: LogLevel;
+}
+
+export interface ProtoPediaApiRequestOptions {
+  signal?: AbortSignal;
+  headers?: HeadersInit;
+  /**
+   * Overrides the client's configured log level for the duration of the
+   * request.
+   */
+  logLevel?: LogLevel;
+}
+
+export interface CreateClientFromEnvOptions extends ProtoPediaApiClientOptions {
+  env?: Record<string, string | undefined>;
+}
+
+export type {
+  Logger as ProtoPediaLogger,
+  LogLevel as ProtoPediaLogLevel,
+} from './log.js';
 
 const DEFAULT_USER_AGENT = `ProtoPedia API Ver 2.0 Node.js Client/${VERSION}`;
 const DEFAULT_BASE_URL = 'https://protopedia.net/v2/api';
@@ -37,8 +72,8 @@ export class ProtoPediaApiClient {
   private readonly fetchFn: FetchFn;
   private readonly timeoutMs: number;
   private readonly userAgent: string | undefined;
-  private readonly logger: ProtoPediaLogger;
-  private readonly logLevel: ProtoPediaLogLevel;
+  private readonly logger: Logger;
+  private readonly logLevel: LogLevel;
   private readonly logLevelValue: number;
 
   /**

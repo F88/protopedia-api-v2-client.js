@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { Logger } from '../../types/client/log.js';
+import type { Logger } from '../../src/log.js';
 import {
   createLoggerConfig,
   getLoggerMethod,

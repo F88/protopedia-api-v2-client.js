@@ -27,7 +27,7 @@ import { describe, expect, it } from 'vitest';
 import { ProtoPediaApiClient } from '../../src/client.js';
 import { ProtoPediaApiError } from '../../src/errors.js';
 
-import type { ListPrototypesApiResponse } from '../../types/protopedia-api-v2/response.js';
+import type { ListPrototypesApiResponse } from '../../src/types/protopedia-api-v2/response.js';
 
 import { createListPrototypesPassthroughHandlers } from '../integration/handlers/prototypes.handlers.js';
 import { server } from '../integration/msw.setup.js';

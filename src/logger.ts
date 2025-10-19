@@ -1,4 +1,4 @@
-import type { Logger, LogLevel } from '../types/client/log.js';
+import type { Logger, LogLevel } from './log.js';
 
 /**
  * Subset of log levels that can be used to select a method on the logger.

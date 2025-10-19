@@ -5,7 +5,7 @@ import {
   createProtoPediaClientFromEnv,
 } from '../../src/client.js';
 import { ProtoPediaApiError } from '../../src/errors.js';
-import type { ProtoPediaLogger } from '../../types/client/client.js';
+import type { ProtoPediaLogger } from '../../src/types/client/client.js';
 
 type FetchFn = typeof fetch;
 
