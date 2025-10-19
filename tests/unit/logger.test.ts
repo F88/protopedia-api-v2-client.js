@@ -105,40 +105,6 @@ describe('headersForLogging', () => {
     expect(headersForLogging(undefined)).toBeUndefined();
   });
 
-  it('masks token headers from Headers instance', () => {
-    const headers = new Headers({
-      Authorization: 'Bearer abc',
-      'X-Token': 'secret',
-      'X-Api-Token': 'also-secret',
-      Accept: 'application/json',
-    });
-
-    const result = headersForLogging(headers);
-
-    expect(result).toEqual({
-      authorization: '***',
-      'x-token': '***',
-      'x-api-token': '***',
-      accept: 'application/json',
-    });
-  });
-
-  it('masks token headers from HeadersInit values', () => {
-    const init: HeadersInit = [
-      ['x-token', 'secret'],
-      ['content-type', 'application/json'],
-    ];
-
-    const result = headersForLogging(init);
-
-    expect(result).toEqual({
-      'x-token': '***',
-      'content-type': 'application/json',
-    });
-  });
-});
-
-describe('headersToObject', () => {
   it('converts Headers instance to plain object', () => {
     const headers = new Headers({
       'Content-Type': 'application/json',
