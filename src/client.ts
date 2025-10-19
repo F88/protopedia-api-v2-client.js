@@ -255,7 +255,7 @@ export class ProtoPediaApiClient {
 
   private buildUrl(pathname: string, query: URLSearchParams): string {
     const normalizedPath = pathname.replace(/^\/+/, '');
-    const base = this.baseUrl.endsWith('/') ? this.baseUrl : `${this.baseUrl}/`;
+    const base = `${this.baseUrl}/`;
     const url = new URL(normalizedPath, base);
     query.forEach((value, key) => {
       if (value !== '') {
