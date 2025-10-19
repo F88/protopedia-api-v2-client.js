@@ -128,7 +128,12 @@ export class ProtoPediaApiClient {
     );
 
     const text = await response.text();
-    this.log('debug', 'downloadWorksTsv response payload', text, logLevelValue);
+    this.log(
+      'debug',
+      'downloadPrototypesTsv response payload',
+      text,
+      logLevelValue,
+    );
     return text;
   }
 
@@ -417,7 +422,7 @@ async function parseJson(
       status: response.status,
       statusText: response.statusText,
       url: response.url,
-      headers: headersToObject(response.headers),
+      headers: headersToPlainObject(response.headers),
       body: text,
       cause: error,
     });
@@ -442,7 +447,7 @@ async function buildError(response: Response): Promise<ProtoPediaApiError> {
     status: response.status,
     statusText: response.statusText,
     url: response.url,
-    headers: headersToObject(response.headers),
+    headers: headersToPlainObject(response.headers),
     body,
   });
 }
@@ -460,7 +465,7 @@ function mergeHeaders(...sources: Array<HeadersInit | undefined>): Headers {
   return headers;
 }
 
-function headersToObject(headers: Headers): Record<string, string> {
+function headersToPlainObject(headers: Headers): Record<string, string> {
   const out: Record<string, string> = {};
   headers.forEach((value, key) => {
     out[key] = value;
