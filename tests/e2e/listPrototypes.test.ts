@@ -29,7 +29,7 @@ import { ProtoPediaApiError } from '../../src/errors.js';
 
 import type { ListPrototypesApiResponse } from '../../types/protopedia-api-v2/response.js';
 
-import { createListPrototypesPassthroughHandlers } from '../integration/handlers/works.handlers.js';
+import { createListPrototypesPassthroughHandlers } from '../integration/handlers/prototypes.handlers.js';
 import { server } from '../integration/msw.setup.js';
 import { assertOkMetadata } from './helper.js';
 import { VERSION } from '../../src/version.js';

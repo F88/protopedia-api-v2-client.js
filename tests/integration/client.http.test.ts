@@ -4,7 +4,7 @@ import { server } from './msw.setup.js';
 import {
   createListPrototypesHandler,
   sampleListPrototypesPayload,
-} from './handlers/works.handlers.js';
+} from './handlers/prototypes.handlers.js';
 import { ProtoPediaApiClient } from '../../src/client.js';
 
 const BASE_URL = 'https://example.com/api/v2';
