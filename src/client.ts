@@ -255,7 +255,7 @@ export class ProtoPediaApiClient {
 
   private buildUrl(pathname: string, query: URLSearchParams): string {
     const normalizedPath = pathname.replace(/^\/+/, '');
-    const base = this.baseUrl.endsWith('/') ? this.baseUrl : `${this.baseUrl}/`;
+    const base = `${this.baseUrl}/`;
     const url = new URL(normalizedPath, base);
     query.forEach((value, key) => {
       if (value !== '') {
@@ -384,7 +384,7 @@ function serializeListPrototypeParams(
     key: string,
     value: string | number | boolean | null | undefined,
   ) => {
-    if (value === undefined || value === null) {
+    if (value == null) {
       return;
     }
     if (typeof value === 'boolean') {
