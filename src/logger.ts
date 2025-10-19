@@ -221,8 +221,8 @@ function headersToObject(headers: Headers): Record<string, string> {
   const out: Record<string, string> = {};
   headers.forEach((value, key) => {
     const keyLower = key.toLowerCase();
-    out[key] =
-      keyLower.includes('token') || keyLower.includes('auth') ? '***' : value;
+    const shouldMask = keyLower.includes('token') || keyLower.includes('auth');
+    out[key] = shouldMask ? '***' : value;
   });
   return out;
 }
