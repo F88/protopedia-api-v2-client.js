@@ -193,6 +193,9 @@ export function getLoggerMethod(
 
 /**
  * Converts Headers into a plain object suitable for structured logging.
+ *
+ * When a header key includes 'token' or 'auth' (case-insensitive),
+ * its value is masked as '***' to prevent leaking sensitive data in logs.
  */
 export function headersForLogging(
   headers: Headers | HeadersInit | undefined,
