@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": [
+    //
+    "src/**/*.ts",
+    "types/**/*.ts",
+    "tests/**/*.ts"
+  ],
+  "exclude": [],
+  "compilerOptions": {
+    // Modules
+    "types": ["node", "vitest/globals"],
+    // Emit
+    "noEmit": true
+  }
+}

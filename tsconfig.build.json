@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": [
+    //
+    "src/**/*.ts",
+    "types/**/*.ts"
+  ],
+  "exclude": [
+    //
+    "tests/**/*.ts",
+    "**/*.test.ts"
+  ],
+  "compilerOptions": {
+    // Emit
+    "outDir": "lib/src",
+    "declarationDir": "lib/types"
+  }
+}
