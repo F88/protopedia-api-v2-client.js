@@ -384,7 +384,7 @@ function serializeListPrototypeParams(
     key: string,
     value: string | number | boolean | null | undefined,
   ) => {
-    if (value === undefined || value === null) {
+    if (value == null) {
       return;
     }
     if (typeof value === 'boolean') {
