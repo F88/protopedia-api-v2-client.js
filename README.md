@@ -29,9 +29,9 @@ The JavaScript client library supports [ProtoPedia API Ver 2\.0 · Apiary](https
 ### Supported APIs
 
 - [作品一覧](https://protopediav2.docs.apiary.io/#reference/0/0)
-    - `GET https://protopedia.net/v2/api/material/list`
+    - `GET https://protopedia.net/v2/api/prototype/list`
 - [作品一覧（TSV）](<https://protopediav2.docs.apiary.io/#reference/0/(tsv)/0>)
-    - `GET https://protopedia.net/v2/api/material/list`
+    - `GET https://protopedia.net/v2/api/prototype/list/tsv`
 
 ## Installation
 
