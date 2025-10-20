@@ -56,22 +56,11 @@ PROTOPEDIA_API_LOG_LEVEL=info
 
 ### Create a client
 
-Using environment variables:
-
-```ts
-import { createProtoPediaClient } from 'protopedia-api-v2-client';
-
-const client = createProtoPediaClient();
-```
-
-Passing options explicitly:
-
 ```ts
 import { createProtoPediaClient } from 'protopedia-api-v2-client';
 
 const client = createProtoPediaClient({
     token: 'your-token',
-    logLevel: 'warn',
 });
 ```
 
@@ -126,7 +115,6 @@ console.log(tsv);
 - Client and factories:
     - [`ProtoPediaApiClient`](src/client.ts)
     - [`createProtoPediaClient`](src/client.ts)
-    - [`createProtoPediaClientFromEnv`](src/client.ts)
 - Errors:
     - [`ProtoPediaApiError`](src/errors.ts)
 - Requests and responses:
@@ -135,13 +123,6 @@ console.log(tsv);
 - Package entry points:
     - [`src/index.ts`](src/index.ts)
     - [`types/index.ts`](types/index.ts)
-
-## Authentication
-
-All requests use `Authorization: Bearer <token>`. Provide a token via:
-
-- `createProtoPediaClient({ token })`
-- Environment variable `PROTOPEDIA_API_V2_TOKEN` with [`createProtoPediaClientFromEnv`](src/client.ts)
 
 ## Logging
 
