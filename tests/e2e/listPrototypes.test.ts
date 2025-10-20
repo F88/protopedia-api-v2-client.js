@@ -147,7 +147,7 @@ describe('listPrototypes', () => {
   });
 
   /**
-   * limit:2 の結果が2件である
+   * limit:3 の結果が3件である
    */
   it('should return 3 results when limit is set to 3', async () => {
     server.use(...createListPrototypesPassthroughHandlers);
