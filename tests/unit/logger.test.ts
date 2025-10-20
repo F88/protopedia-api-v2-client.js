@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { Logger } from '../../src/log.js';
 import {
   createLoggerConfig,
   getLoggerMethod,
@@ -9,6 +8,7 @@ import {
   headersToMaskedObject,
   normaliseLogLevel,
   shouldLog,
+  type Logger,
 } from '../../src/logger.js';
 
 describe('createLoggerConfig', () => {

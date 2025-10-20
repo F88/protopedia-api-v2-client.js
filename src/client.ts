@@ -1,28 +1,18 @@
 import { ProtoPediaApiError } from './errors.js';
-import type { Logger, LogLevel } from './log.js';
 import {
   createLoggerConfig,
   getLoggerMethod,
   getLogLevelValue,
   headersForLogging,
   shouldLog,
+  type Logger,
   type LoggerMethodLevel,
+  type LogLevel,
 } from './logger.js';
 import { VERSION } from './version.js';
 
 import type { ListPrototypesParams } from './types/protopedia-api-v2/request.js';
 import type { ListPrototypesApiResponse } from './types/protopedia-api-v2/response.js';
-
-/**
- * @packageDocumentation
- * Client-facing type definitions for configuring and interacting with the
- * ProtoPedia API client.
- *
- * These types cover client options and environment helpers. Request parameter
- * interfaces are maintained in `../../protopedia-api-v2/types/request.js` and
- * re-exported here for convenience, while logging interfaces live in
- * `./log.js`.
- */
 
 export interface ProtoPediaApiClientOptions {
   token?: string;

@@ -1,4 +1,11 @@
-import type { Logger, LogLevel } from './log.js';
+export type LogLevel = 'silent' | 'error' | 'warn' | 'info' | 'debug';
+
+export interface Logger {
+  error(message: string, metadata?: unknown): void;
+  warn(message: string, metadata?: unknown): void;
+  info(message: string, metadata?: unknown): void;
+  debug(message: string, metadata?: unknown): void;
+}
 
 /**
  * Subset of log levels that can be used to select a method on the logger.
