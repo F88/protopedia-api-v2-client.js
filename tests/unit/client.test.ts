@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+  createProtoPediaClient,
   ProtoPediaApiClient,
-  createProtoPediaClientFromEnv,
 } from '../../src/client.js';
 import { ProtoPediaApiError } from '../../src/errors.js';
-import type { ProtoPediaLogger } from '../../src/types/client/client.js';
+import type { Logger } from '../../src/log.js';
 
 type FetchFn = typeof fetch;
 
@@ -50,7 +50,7 @@ function createTestLogger() {
   const info = vi.fn<(message: string, metadata?: unknown) => void>();
   const debug = vi.fn<(message: string, metadata?: unknown) => void>();
 
-  const logger: ProtoPediaLogger = {
+  const logger: Logger = {
     error,
     warn,
     info,
@@ -60,7 +60,7 @@ function createTestLogger() {
   return { logger, error, warn, info, debug };
 }
 
-describe('ProtoPediaApiClient (unit)', () => {
+describe('ProtoPediaApiClient', () => {
   it('builds query parameters and returns API v2 response as-is', async () => {
     const fetchMock = vi.fn<FetchFn>(() =>
       Promise.resolve(createJsonResponse(SAMPLE_API_RESPONSE)),
@@ -140,43 +140,6 @@ describe('ProtoPediaApiClient (unit)', () => {
     await expect(client.listPrototypes()).rejects.toBeInstanceOf(
       ProtoPediaApiError,
     );
-  });
-
-  it('creates a client from environment variables and downloads TSV', async () => {
-    const payload = 'id\ttitle\n1\tWork';
-    const fetchMock = vi.fn<FetchFn>(() =>
-      Promise.resolve(
-        new Response(payload, {
-          status: 200,
-          headers: {
-            'Content-Type': 'text/tab-separated-values',
-          },
-        }),
-      ),
-    );
-
-    const client = createProtoPediaClientFromEnv({
-      env: {
-        PROTOPEDIA_API_V2_TOKEN: 'env-token',
-      },
-      baseUrl: BASE_URL,
-      fetch: fetchMock,
-      logLevel: 'silent',
-    });
-
-    const text = await client.downloadPrototypesTsv();
-    expect(text).toBe(payload);
-
-    const downloadCall = fetchMock.mock.calls[0];
-    if (!downloadCall) {
-      throw new Error('Fetch was not called for download');
-    }
-
-    const [, requestInit] = downloadCall;
-    const headers = new Headers(requestInit?.headers ?? {});
-    expect(headers.get('Authorization')).toBe('Bearer env-token');
-    // Current implementation uses application/json for TSV download as well
-    expect(headers.get('Accept')).toContain('application/json');
   });
 
   it('logs HTTP activity and response payloads when log level allows it', async () => {
@@ -278,28 +241,21 @@ describe('ProtoPediaApiClient (unit)', () => {
       SAMPLE_API_RESPONSE,
     );
   });
+});
 
-  it('derives log level from environment variables when not provided', async () => {
-    const fetchMock = vi.fn<FetchFn>(() =>
-      Promise.resolve(createJsonResponse(SAMPLE_API_RESPONSE)),
-    );
-    const { logger, debug } = createTestLogger();
-
-    const client = createProtoPediaClientFromEnv({
-      env: {
-        PROTOPEDIA_API_V2_TOKEN: 'env-token',
-        PROTOPEDIA_API_LOG_LEVEL: 'debug',
-      },
-      baseUrl: BASE_URL,
-      fetch: fetchMock,
-      logger,
+describe('createProtoPediaClient', () => {
+  it('returns ProtoPediaApiClient instance when token is provided', () => {
+    const client = createProtoPediaClient({
+      token: 'token-123',
     });
+    expect(client).toBeInstanceOf(ProtoPediaApiClient);
+  });
 
-    await client.listPrototypes();
-
-    expect(debug).toHaveBeenCalledWith(
-      'HTTP request',
-      expect.objectContaining({ url: `${BASE_URL}/prototype/list` }),
-    );
+  it('throws an error when token is not provided', () => {
+    expect(() => {
+      createProtoPediaClient({
+        // no token
+      });
+    }).toThrowError('Missing PROTOPEDIA_API_V2_TOKEN.');
   });
 });

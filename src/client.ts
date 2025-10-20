@@ -5,7 +5,6 @@ import {
   getLoggerMethod,
   getLogLevelValue,
   headersForLogging,
-  normaliseLogLevel,
   shouldLog,
   type LoggerMethodLevel,
 } from './logger.js';
@@ -44,15 +43,6 @@ export interface ProtoPediaApiRequestOptions {
    */
   logLevel?: LogLevel;
 }
-
-export interface CreateClientFromEnvOptions extends ProtoPediaApiClientOptions {
-  env?: Record<string, string | undefined>;
-}
-
-export type {
-  Logger as ProtoPediaLogger,
-  LogLevel as ProtoPediaLogLevel,
-} from './log.js';
 
 const DEFAULT_USER_AGENT = `ProtoPedia API Ver 2.0 Node.js Client/${VERSION}`;
 const DEFAULT_BASE_URL = 'https://protopedia.net/v2/api';
@@ -369,42 +359,16 @@ export class ProtoPediaApiClient {
 }
 
 /**
- * Convenience factory that mirrors the ProtoPediaApiClient constructor.
+ * Builds a ProtoPedia API client.
  */
 export function createProtoPediaClient(
-  options?: ProtoPediaApiClientOptions,
+  options: ProtoPediaApiClientOptions = {},
 ): ProtoPediaApiClient {
+  const token = options.token;
+  if (token == null || !token) {
+    throw new Error('Missing PROTOPEDIA_API_V2_TOKEN.');
+  }
   return new ProtoPediaApiClient(options);
-}
-
-/**
- * Builds a ProtoPedia client using environment variables for configuration.
- *
- * The utility reads `PROTOPEDIA_API_V2_TOKEN` and, when not explicitly
- * provided, `PROTOPEDIA_API_LOG_LEVEL`.
- */
-export function createProtoPediaClientFromEnv(
-  options: CreateClientFromEnvOptions = {},
-): ProtoPediaApiClient {
-  const { env, ...rest } = options;
-  const effectiveEnv = env ?? readProcessEnv() ?? {};
-  const token = options.token ?? effectiveEnv.PROTOPEDIA_API_V2_TOKEN;
-
-  if (!token) {
-    throw new Error('Missing PROTOPEDIA_API_V2_TOKEN environment variable.');
-  }
-
-  const restOptions: ProtoPediaApiClientOptions = { ...rest, token };
-  if (restOptions.logLevel === undefined) {
-    const envLogLevel = normaliseLogLevel(
-      effectiveEnv.PROTOPEDIA_API_LOG_LEVEL,
-    );
-    if (envLogLevel) {
-      restOptions.logLevel = envLogLevel;
-    }
-  }
-
-  return new ProtoPediaApiClient(restOptions);
 }
 
 function serializeListPrototypeParams(
@@ -506,25 +470,6 @@ function headersToPlainObject(headers: Headers): Record<string, string> {
     out[key] = value;
   });
   return out;
-}
-
-function readProcessEnv(): Record<string, string | undefined> | undefined {
-  if (typeof globalThis !== 'object' || globalThis === null) {
-    return undefined;
-  }
-
-  const processCandidate = (
-    globalThis as { process?: { env?: Record<string, string | undefined> } }
-  ).process;
-  if (
-    processCandidate &&
-    typeof processCandidate.env === 'object' &&
-    processCandidate.env !== null
-  ) {
-    return processCandidate.env;
-  }
-
-  return undefined;
 }
 
 function trimTrailingSlash(value: string): string {
