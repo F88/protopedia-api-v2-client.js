@@ -2,6 +2,8 @@
 
 [![codecov](https://codecov.io/gh/F88/protopedia-api-v2-client.js/graph/badge.svg?token=4HDWGCEAHS)](https://codecov.io/gh/F88/protopedia-api-v2-client.js)
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/F88/protopedia-api-v2-client.js)
+
 ProtoPedia API Ver 2.0 Client for Javascript
 
 ## Description
