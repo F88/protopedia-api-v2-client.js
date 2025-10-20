@@ -1,0 +1,27 @@
+# Windows
+Thumbs.db
+# Mac
+.DS_Store
+# VSCode
+.vscode/
+# JB
+.idea/
+
+# Node.js
+node_modules/
+npm-debug.log*
+
+# App
+dist/
+lib/
+.env
+.env.*
+!.env.example
+
+## Test
+coverage/
+test-report.junit.xml
+
+## Temporary Files
+*.log
+*.tgz
