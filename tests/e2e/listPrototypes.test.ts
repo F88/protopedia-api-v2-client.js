@@ -191,7 +191,7 @@ describe('listPrototypes', () => {
   });
 
   /**
-   * prototypeId:1 の結果が1件である
+   * 特定のprototypeIdを指定した場合、その作品のみが返る
    */
   it('should return specific result when prototypeId is set', async () => {
     server.use(...createListPrototypesPassthroughHandlers);
