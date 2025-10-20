@@ -51,13 +51,13 @@
     "typescript-eslint": "^8.46.1",
     "vitest": "^3.2.4"
   },
-  "main": "lib/src/src/index.js",
-  "types": "./lib/types/types/index.d.ts",
+  "main": "lib/src/index.js",
+  "types": "./lib/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./lib/types/types/index.d.ts",
-      "import": "./lib/src/src/index.js",
-      "require": "./lib/src/src/index.js"
+      "types": "./lib/types/index.d.ts",
+      "import": "./lib/src/index.js",
+      "require": "./lib/src/index.js"
     }
   },
   "files": [
