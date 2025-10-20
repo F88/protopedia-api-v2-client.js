@@ -2,16 +2,21 @@
   "extends": "./tsconfig.base.json",
   "include": [
     //
-    "src/**/*.ts"
+    "src/**/*"
   ],
   "exclude": [
     //
-    "**/*.test.ts",
-    "tests/**/*.ts"
+    "**/*.test.*"
+    // "tests/**/*"
   ],
   "compilerOptions": {
-    // Emit
-    "outDir": "lib",
-    "declarationDir": "lib/types"
+    /* Modules */
+    "rootDir": "./src",
+    /* Emit */
+    "outDir": "lib/src",
+    "declaration": true,
+    "declarationDir": "lib/types",
+    "declarationMap": true,
+    "sourceMap": true
   }
 }

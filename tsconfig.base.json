@@ -7,7 +7,7 @@
     "exactOptionalPropertyTypes": true,
 
     /* Modules */
-    "rootDir": "./",
+    "rootDir": ".",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "types": ["node"],
@@ -15,11 +15,9 @@
     "noUncheckedSideEffectImports": true,
 
     /* Emit */
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
+    "outDir": "dist",
 
-    // Interop Constraints
+    /* Interop Constraints */
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
