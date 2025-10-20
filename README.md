@@ -59,9 +59,9 @@ PROTOPEDIA_API_LOG_LEVEL=info
 Using environment variables:
 
 ```ts
-import { createProtoPediaClientFromEnv } from 'protopedia-api-v2-client';
+import { createProtoPediaClient } from 'protopedia-api-v2-client';
 
-const client = createProtoPediaClientFromEnv();
+const client = createProtoPediaClient();
 ```
 
 Passing options explicitly:
@@ -71,7 +71,6 @@ import { createProtoPediaClient } from 'protopedia-api-v2-client';
 
 const client = createProtoPediaClient({
     token: 'your-token',
-    baseUrl: 'https://protopedia.net/v2/api',
     logLevel: 'warn',
 });
 ```
