@@ -30,13 +30,14 @@
     "test:e2e": "vitest run tests/e2e/",
     "test:coverage": "vitest run --coverage tests/unit/ tests/integration",
     "test:codecov": "vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=test-report.junit.xml tests/unit/ tests/integration",
-    "format": "prettier --write .",
+    "prettier:check": "prettier --check .",
+    "prettier:write": "prettier --write .",
+    "format": "npm run prettier:write",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prebuild": "npm run clean && npm run format && npm run lint:fix && npm run test:codecov",
     "build": "tsc --project tsconfig.build.json",
-    "typecheck": "tsc --project tsconfig.dev.json --noEmit",
-    "prepack": "npm run build"
+    "typecheck": "tsc --project tsconfig.dev.json --noEmit"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
