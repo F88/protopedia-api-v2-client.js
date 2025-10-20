@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, afterEach } from 'vitest';
 
 import {
   createLoggerConfig,
@@ -53,6 +53,11 @@ describe('shouldLog', () => {
     const configured = getLogLevelValue('silent');
     expect(shouldLog(configured, 'error')).toBe(false);
     expect(shouldLog(configured, 'debug')).toBe(false);
+  });
+
+  it('returns false when message level is silent regardless of configured', () => {
+    const configured = getLogLevelValue('debug');
+    expect(shouldLog(configured, 'silent')).toBe(false);
   });
 });
 
@@ -247,5 +252,89 @@ describe('headersToMaskedObject', () => {
       // Whether a single or multiple values, masked field should be '***'
       expect(result).toEqual({ authorization: '***' });
     });
+  });
+});
+
+describe('createLoggerConfig with console fallbacks', () => {
+  const originalConsole = globalThis.console;
+
+  afterEach(() => {
+    // restore the original console after each test
+    (globalThis as unknown as { console: Console | null }).console =
+      originalConsole;
+  });
+
+  it('uses NOOP logger when console is not available', () => {
+    (globalThis as unknown as { console: unknown }).console =
+      null as unknown as Console;
+    const cfg = createLoggerConfig(undefined, 'debug');
+    expect(typeof cfg.logger.error).toBe('function');
+    expect(typeof cfg.logger.warn).toBe('function');
+    expect(typeof cfg.logger.info).toBe('function');
+    expect(typeof cfg.logger.debug).toBe('function');
+    // should not throw when called
+    cfg.logger.debug('hello');
+    cfg.logger.info('hello');
+  });
+
+  it('falls back to error when only console.error exists', () => {
+    const error = vi.fn();
+    // minimal console
+    (globalThis as unknown as { console: unknown }).console = {
+      error,
+    } as unknown as Console;
+
+    const cfg = createLoggerConfig(undefined, 'debug');
+
+    cfg.logger.warn('warn message', { id: 1 });
+    cfg.logger.info('info message');
+    cfg.logger.debug('debug message');
+
+    expect(error).toHaveBeenCalledTimes(3);
+    expect(error).toHaveBeenNthCalledWith(1, 'warn message', { id: 1 });
+    expect(error).toHaveBeenNthCalledWith(2, 'info message');
+    expect(error).toHaveBeenNthCalledWith(3, 'debug message');
+  });
+
+  it('falls back to warn when info/debug are missing but warn exists', () => {
+    const error = vi.fn();
+    const warn = vi.fn();
+    (globalThis as unknown as { console: unknown }).console = {
+      error,
+      warn,
+    } as unknown as Console;
+
+    const cfg = createLoggerConfig(undefined, 'debug');
+
+    cfg.logger.info('hello'); // info -> warn
+    cfg.logger.debug('world'); // debug -> info? (missing) -> warn
+
+    expect(warn).toHaveBeenCalledTimes(2);
+    expect(warn).toHaveBeenNthCalledWith(1, 'hello');
+    expect(warn).toHaveBeenNthCalledWith(2, 'world');
+    expect(error).not.toHaveBeenCalled();
+  });
+
+  it('uses info when available and falls back from debug to info', () => {
+    const error = vi.fn();
+    const warn = vi.fn();
+    const info = vi.fn();
+    (globalThis as unknown as { console: unknown }).console = {
+      error,
+      warn,
+      info,
+      // debug is intentionally missing
+    } as unknown as Console;
+
+    const cfg = createLoggerConfig(undefined, 'debug');
+
+    cfg.logger.info('hi');
+    cfg.logger.debug('there'); // debug -> info
+
+    expect(info).toHaveBeenCalledTimes(2);
+    expect(info).toHaveBeenNthCalledWith(1, 'hi');
+    expect(info).toHaveBeenNthCalledWith(2, 'there');
+    expect(warn).not.toHaveBeenCalled();
+    expect(error).not.toHaveBeenCalled();
   });
 });
