@@ -4,6 +4,7 @@ import {
   createProtoPediaClient,
   ProtoPediaApiClient,
 } from '../../src/client.js';
+import type { ProtoPediaApiRequestOptions } from '../../src/client.js';
 import { ProtoPediaApiError } from '../../src/errors.js';
 import type { Logger } from '../../src/logger.js';
 
@@ -72,6 +73,35 @@ describe('ProtoPediaApiClient', () => {
       expect(client['logger']).toBeDefined();
       expect(client['logLevel']).toBe('error');
       expect(client['logLevelValue']).toBe(0);
+    });
+
+    it('throws when no fetch implementation is available', () => {
+      const originalFetch = globalThis.fetch;
+      // temporarily remove global fetch
+      Reflect.set(globalThis, 'fetch', undefined);
+      try {
+        expect(() => new ProtoPediaApiClient({})).toThrow(
+          'fetch is not available. Provide a fetch implementation in options.fetch.',
+        );
+      } finally {
+        // restore
+        Reflect.set(globalThis, 'fetch', originalFetch);
+      }
+    });
+
+    it('normalizes timeoutMs via toTimeout (negative and Infinity fall back, zero allowed)', () => {
+      const { logger } = createTestLogger();
+      const c1 = new ProtoPediaApiClient({ timeoutMs: -1, logger });
+      expect(c1['timeoutMs']).toBe(15_000);
+
+      const c2 = new ProtoPediaApiClient({ timeoutMs: 0, logger });
+      expect(c2['timeoutMs']).toBe(0);
+
+      const c3 = new ProtoPediaApiClient({
+        timeoutMs: Number.POSITIVE_INFINITY,
+        logger,
+      });
+      expect(c3['timeoutMs']).toBe(15_000);
     });
   });
 
@@ -501,6 +531,76 @@ describe('ProtoPediaApiClient', () => {
       const [requestUrl] = fetchMock.mock.calls[0] ?? [];
       expect(requestUrl).toBe(
         `${BASE_URL}/prototype/list?limit=0`, // materialNm empty string should be omitted
+      );
+    });
+  });
+
+  describe('execute (via subclass)', () => {
+    class TestClient extends ProtoPediaApiClient {
+      public async callExecute(
+        url: string,
+        options: {
+          method: string;
+          headers?: HeadersInit;
+          body?: BodyInit | null;
+        },
+        requestOptions?: ProtoPediaApiRequestOptions,
+      ) {
+        // expose protected for test
+        return this.execute(url, options, requestOptions);
+      }
+    }
+
+    it('sends body when provided in options', async () => {
+      const fetchMock = vi.fn<FetchFn>(() =>
+        Promise.resolve(
+          new Response('ok', {
+            status: 200,
+            headers: { 'Content-Type': 'text/plain' },
+          }),
+        ),
+      );
+      const { logger } = createTestLogger();
+      const client = new TestClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger,
+        logLevel: 'silent',
+      });
+      const url = `${BASE_URL}/prototype/list`;
+      await client.callExecute(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ a: 1 }),
+      });
+      const [, init] = fetchMock.mock.calls[0] ?? [];
+      expect((init as RequestInit).method).toBe('POST');
+      expect(
+        new Headers((init as RequestInit).headers).get('Content-Type'),
+      ).toBe('application/json');
+      expect((init as RequestInit).body).toBe(JSON.stringify({ a: 1 }));
+    });
+
+    it('logs unexpected errors (e.g., TimeoutError) and rethrows', async () => {
+      const unexpected = new DOMException('boom', 'TimeoutError');
+      const fetchMock = vi.fn<FetchFn>(() => Promise.reject(unexpected));
+      const { logger, error } = createTestLogger();
+      const client = new TestClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger,
+        logLevel: 'error',
+      });
+
+      await expect(
+        client.callExecute(`${BASE_URL}/prototype/list`, { method: 'GET' }),
+      ).rejects.toBe(unexpected);
+
+      expect(error).toHaveBeenCalledWith(
+        'HTTP request threw an unexpected error',
+        expect.objectContaining({ error: unexpected }),
       );
     });
   });
