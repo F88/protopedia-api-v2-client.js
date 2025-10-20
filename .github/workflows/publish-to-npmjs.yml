@@ -1,0 +1,59 @@
+name: Publish package to npmjs.com
+
+on:
+  workflow_dispatch:
+  #release:
+  #  types: [published]
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write # Required for OIDC
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish-to-npm:
+    name: Publish npm package to npmjs.com
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          registry-url: 'https://registry.npmjs.org'
+          # scope: "@msn088"
+      # Ensure npm 11.5.1 or later is installed
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package for release
+        run: npm run build
+
+      # - name: Publish to npmjs.com (dry run)
+      #   run: >-
+      #     npm
+      #     --loglevel notice
+      #     publish
+      #     --dry-run
+      #     --registry https://registry.npmjs.org
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - name: Publish to npmjs.com
+        run: >-
+          npm
+          --loglevel notice
+          publish
+          --registry https://registry.npmjs.org
+        #env:
+        #  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

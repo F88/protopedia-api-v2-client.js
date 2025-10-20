@@ -1,8 +1,10 @@
 # ProtoPedia API Ver 2.0 Client for Javascript
 
-## Description
+[![codecov](https://codecov.io/gh/F88/protopedia-api-v2-client.js/graph/badge.svg?token=4HDWGCEAHS)](https://codecov.io/gh/F88/protopedia-api-v2-client.js)
 
-ProtoPedia API Ver 2.0 クライアントライブラリ for Javascript
+ProtoPedia API Ver 2.0 Client for Javascript
+
+## Description
 
 Type-safe, ESM-first client for the ProtoPedia API v2. Built with TypeScript, tested with Vitest, and ready for Node.js 20+.
 
