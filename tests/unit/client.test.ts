@@ -506,7 +506,96 @@ describe('ProtoPediaApiClient', () => {
   });
 
   describe('downloadPrototypesTsv', () => {
-    // todo add tests
+    it('logs TSV payload at debug level', async () => {
+      const TSV = 'col1\tcol2\n1\t2\n';
+      const fetchMock = vi.fn<FetchFn>(() =>
+        Promise.resolve(
+          new Response(TSV, {
+            status: 200,
+            headers: { 'Content-Type': 'text/plain' },
+          }),
+        ),
+      );
+      const { logger, debug } = createTestLogger();
+
+      const client = new ProtoPediaApiClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger,
+        logLevel: 'debug',
+      });
+
+      const text = await client.downloadPrototypesTsv({ tagNm: 'log' });
+      expect(text).toBe(TSV);
+
+      expect(debug).toHaveBeenCalledWith(
+        'HTTP request',
+        expect.objectContaining({
+          url: `${BASE_URL}/prototype/list/tsv?tagNm=log`,
+        }),
+      );
+      expect(debug).toHaveBeenCalledWith(
+        'downloadPrototypesTsv response payload',
+        TSV,
+      );
+    });
+
+    it('allows overriding log level per request for TSV', async () => {
+      const TSV = 'id\tname\n1\tAlpha\n';
+      const fetchMock = vi.fn<FetchFn>(() =>
+        Promise.resolve(new Response(TSV, { status: 200 })),
+      );
+      const { logger, debug } = createTestLogger();
+
+      const client = new ProtoPediaApiClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger,
+        logLevel: 'silent',
+      });
+
+      await client.downloadPrototypesTsv(
+        { tagNm: 'override' },
+        { logLevel: 'debug' },
+      );
+      expect(debug).toHaveBeenCalledWith(
+        'HTTP request',
+        expect.objectContaining({
+          url: `${BASE_URL}/prototype/list/tsv?tagNm=override`,
+        }),
+      );
+      expect(debug).toHaveBeenCalledWith(
+        'downloadPrototypesTsv response payload',
+        TSV,
+      );
+    });
+
+    it('throws ProtoPediaApiError for non-success responses (TSV)', async () => {
+      const fetchMock = vi.fn<FetchFn>(() =>
+        Promise.resolve(
+          new Response('not found', {
+            status: 404,
+            statusText: 'Not Found',
+            headers: { 'Content-Type': 'text/plain' },
+          }),
+        ),
+      );
+      const { logger } = createTestLogger();
+
+      const client = new ProtoPediaApiClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger,
+        logLevel: 'silent',
+      });
+
+      await expect(client.downloadPrototypesTsv()).rejects.toBeInstanceOf(
+        ProtoPediaApiError,
+      );
+    });
   });
 });
 
