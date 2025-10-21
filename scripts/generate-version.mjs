@@ -16,7 +16,7 @@ if (typeof pkg.version === 'string' && pkg.version !== '') {
   version = pkg.version;
 } else {
   console.error(
-    "Warning: package.json is missing a valid 'version' field. Falling back to '0.0.0'."
+    "Warning: package.json is missing a valid 'version' field. Falling back to '0.0.0'.",
   );
   version = '0.0.0';
 }
