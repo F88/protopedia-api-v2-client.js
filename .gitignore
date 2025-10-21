@@ -18,6 +18,9 @@ lib/
 .env.*
 !.env.example
 
+# Generated at build time
+# src/version.ts
+
 ## Test
 coverage/
 test-report.junit.xml
