@@ -35,7 +35,9 @@
     "format": "npm run prettier:write",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prebuild": "npm run clean && npm run format && npm run lint:fix && npm run test:codecov",
+    "gen:version": "node ./scripts/generate-version.mjs",
+    "prepack": "npm run gen:version",
+    "prebuild": "npm run gen:version && npm run clean && npm run format && npm run lint:fix && npm run test:codecov",
     "build": "tsc --project tsconfig.build.json",
     "typecheck": "tsc --project tsconfig.dev.json --noEmit"
   },
