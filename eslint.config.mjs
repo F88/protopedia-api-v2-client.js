@@ -13,6 +13,21 @@ export default defineConfig([
       'lib/**',
     ],
   },
+  {
+    files: ['scripts/**/*.{js,mjs,cjs}'],
+    languageOptions: {
+      // Minimal globals to avoid no-undef in Node ESM scripts without extra deps
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+      },
+    },
+  },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
 ]);
