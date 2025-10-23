@@ -1,6 +1,6 @@
 # protopedia-api-v2-client.js
 
-## 1.1.0 2025-10-21
+## 1.1.0 - 2025-10-21
 
 ### Changed
 
@@ -13,6 +13,6 @@
 
 - `console.error` メッセージのフォーマットを修正。
 
-## 1.0.0 2025-10-21
+## 1.0.0 - 2025-10-21
 
 - Initial release of the Protopedia API v2 Client library.
