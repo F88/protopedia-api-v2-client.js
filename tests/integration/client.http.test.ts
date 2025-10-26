@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import { server } from './msw.setup.js';
 import {
+  createListPrototypes500HtmlHandler,
   createListPrototypesHandler,
   sampleListPrototypesPayload,
 } from './handlers/prototypes.handlers.js';
 import { ProtoPediaApiClient } from '../../src/client.js';
+import { ProtoPediaApiError } from '../../src/errors.js';
 
 const BASE_URL = 'https://example.com/api/v2';
 
@@ -49,5 +51,47 @@ describe('ProtoPediaApiClient (integration)', () => {
     const first = result.results?.[0];
     expect(first?.id).toBe(42);
     expect(first?.prototypeNm).toBe('Test Work');
+  });
+
+  it('handles 500 with HTML body by surfacing string body on ProtoPediaApiError', async () => {
+    server.use(createListPrototypes500HtmlHandler());
+
+    const client = new ProtoPediaApiClient({
+      token: 'token-123',
+      baseUrl: BASE_URL,
+      // logLevel: 'debug',
+      logLevel: 'debug',
+    });
+
+    try {
+      await client.listPrototypes({ limit: 2, offset: 0 });
+      expect.fail('Expected ProtoPediaApiError to be thrown');
+    } catch (e) {
+      // Assert as Error
+      expect(e).toBeInstanceOf(Error);
+      const error = e as ProtoPediaApiError;
+      expect(error.name).toBe('ProtoPediaApiError');
+      expect(error.message).toBe('Request failed with status 500');
+      expect(error.cause).toBeUndefined();
+
+      // Assert as ProtoPediaApiError
+      expect(e).toBeInstanceOf(ProtoPediaApiError);
+      const protoPediaApiError = e as ProtoPediaApiError;
+      expect(protoPediaApiError.status).toBe(500);
+      expect(protoPediaApiError.statusText).toBe('Internal Server Error');
+      expect(protoPediaApiError.url).toBe(
+        `${BASE_URL}/prototype/list?limit=2&offset=0`,
+      );
+      expect(typeof protoPediaApiError.body === 'string').toBe(true);
+      if (typeof protoPediaApiError.body === 'string') {
+        expect(protoPediaApiError.body.toLowerCase()).toContain('<html');
+        expect(protoPediaApiError.body).toContain('Internal Server Error');
+      }
+      // Headers should include content-type propagated through our error builder
+      expect(Object.keys(protoPediaApiError.headers).length).toBeGreaterThan(0);
+      expect(
+        protoPediaApiError.headers['content-type']?.toLowerCase(),
+      ).toContain('text/html');
+    }
   });
 });
