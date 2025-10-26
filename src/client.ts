@@ -393,13 +393,31 @@ async function parseJson(
 async function buildError(response: Response): Promise<ProtoPediaApiError> {
   let body: unknown = null;
 
-  try {
-    body = await response.json();
-  } catch {
+  // Prefer JSON when content-type hints JSON; otherwise text. Use clone() to
+  // avoid consuming the body twice and causing "Body has already been read".
+  const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
+  if (contentType.includes('application/json')) {
+    try {
+      const copy = response.clone();
+      body = await copy.json();
+    } catch {
+      try {
+        body = await response.text();
+      } catch (readError) {
+        body = { parseError: (readError as Error).message };
+      }
+    }
+  } else {
     try {
       body = await response.text();
-    } catch (readError) {
-      body = { parseError: (readError as Error).message };
+    } catch (textError) {
+      try {
+        // As a last resort, try JSON on the original response without cloning
+        // to support minimal mock Response objects in tests.
+        body = await (response as Response).json();
+      } catch {
+        body = { parseError: (textError as Error).message };
+      }
     }
   }
 
