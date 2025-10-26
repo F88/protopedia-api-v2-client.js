@@ -517,6 +517,41 @@ describe('ProtoPediaApiClient', () => {
       });
     });
 
+    it('when application/json and both json() and text() fail, returns parseError from text() branch', async () => {
+      const readFail = new Error('unreadable');
+      const failingClone = {
+        json: () => Promise.reject(new Error('bad json')),
+      };
+      const failingResponse = {
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        url: `${BASE_URL}/prototype/list`,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        // clone().json() fails
+        clone: () => failingClone as unknown as Response,
+        // then response.text() also fails
+        text: () => Promise.reject(readFail),
+      } as unknown as Response;
+
+      const fetchMock = vi.fn<FetchFn>(() => Promise.resolve(failingResponse));
+
+      const { logger } = createTestLogger();
+      const client = new ProtoPediaApiClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger,
+        logLevel: 'silent',
+      });
+
+      await expect(client.listPrototypes()).rejects.toMatchObject({
+        name: 'ProtoPediaApiError',
+        status: 500,
+        body: { parseError: 'unreadable' },
+      });
+    });
+
     it('aborts request due to client timeout and throws AbortError', async () => {
       // Abort-aware fetch mock: rejects with AbortError when the provided signal aborts
       const fetchMock = vi.fn<FetchFn>(
