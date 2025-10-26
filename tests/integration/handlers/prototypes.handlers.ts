@@ -44,6 +44,33 @@ export function createListPrototypesHandler(
 }
 
 /**
+ * Returns a 500 Internal Server Error with an HTML body to simulate cases
+ * where the upstream returns a non-JSON payload even though the client sent
+ * Accept: application/json.
+ */
+export function createListPrototypes500HtmlHandler() {
+  const html = `<!doctype html>
+<html>
+  <head><title>Status page</title></head>
+  <body style="font-family: sans-serif;">
+    <p style="font-size: 1.2em;font-weight: bold;margin: 1em 0px;">Internal Server Error</p>
+    <p>The server encountered an unexpected condition which prevented it from fulfilling the request</p>
+    <p>You can get technical details <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">here</a>.<br/>
+    Please continue your visit at our <a href="/">home page</a>.</p>
+  </body>
+  </html>`;
+
+  return http.get('https://example.com/api/v2/prototype/list', () =>
+    HttpResponse.text(html, {
+      status: 500,
+      headers: {
+        'Content-Type': 'text/html; charset=UTF-8',
+      },
+    }),
+  );
+}
+
+/**
  * Returns MSW handlers that allow every request to pass through and resolve
  * with the original network response. Useful when tests need the raw API
  * output without additional stubbing.
