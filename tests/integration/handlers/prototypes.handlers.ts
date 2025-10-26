@@ -71,6 +71,29 @@ export function createListPrototypes500HtmlHandler() {
 }
 
 /**
+ * Returns a 500 Internal Server Error with an HTML body for the TSV endpoint.
+ */
+export function createDownloadPrototypesTsv500HtmlHandler() {
+  const html = `<!doctype html>
+<html>
+  <head><title>Status page</title></head>
+  <body style="font-family: sans-serif;">
+    <p style="font-size: 1.2em;font-weight: bold;margin: 1em 0px;">Internal Server Error</p>
+    <p>The server encountered an unexpected condition which prevented it from fulfilling the request</p>
+  </body>
+  </html>`;
+
+  return http.get('https://example.com/api/v2/prototype/list/tsv', () =>
+    HttpResponse.text(html, {
+      status: 500,
+      headers: {
+        'Content-Type': 'text/html; charset=UTF-8',
+      },
+    }),
+  );
+}
+
+/**
  * Returns MSW handlers that allow every request to pass through and resolve
  * with the original network response. Useful when tests need the raw API
  * output without additional stubbing.

@@ -6,6 +6,7 @@ import {
   createListPrototypesHandler,
   createDownloadPrototypesTsvHandler,
   createListPrototypesJsonErrorHandler,
+  createDownloadPrototypesTsv500HtmlHandler,
   sampleListPrototypesPayload,
 } from './handlers/prototypes.handlers.js';
 import { ProtoPediaApiClient } from '../../src/client.js';
@@ -174,6 +175,9 @@ describe('ProtoPediaApiClient (integration)', () => {
     }
     const url = new URL(capturedRequest.url);
     expect(url.pathname).toBe('/api/v2/prototype/list/tsv');
+    // Headers check for TSV request
+    expect(capturedRequest.headers.get('accept')).toBe('application/json');
+    expect(capturedRequest.headers.get('x-client-user-agent')).toBeTruthy();
   });
 
   it('merges caller-provided headers with client headers (and allows override)', async () => {
@@ -229,6 +233,60 @@ describe('ProtoPediaApiClient (integration)', () => {
     const pathB = new URL(capturedB.url).pathname;
     expect(pathA).toBe('/api/v2/prototype/list');
     expect(pathB).toBe('/api/v2/prototype/list');
+  });
+
+  it('overrides X-Client-User-Agent when userAgent is provided', async () => {
+    let capturedRequest: Request | undefined;
+    server.use(
+      createListPrototypesHandler({ onRequest: (r) => (capturedRequest = r) }),
+    );
+
+    const client = new ProtoPediaApiClient({
+      token: 't',
+      baseUrl: BASE_URL,
+      userAgent: 'CustomUA/1.0',
+    });
+    await client.listPrototypes({ limit: 1 });
+
+    if (!capturedRequest) throw new Error('no request captured');
+    expect(capturedRequest.headers.get('x-client-user-agent')).toBe(
+      'CustomUA/1.0',
+    );
+  });
+
+  it('handles 500 with HTML body on TSV endpoint and surfaces string body', async () => {
+    server.use(createDownloadPrototypesTsv500HtmlHandler());
+
+    const client = new ProtoPediaApiClient({ token: 't', baseUrl: BASE_URL });
+    try {
+      await client.downloadPrototypesTsv({ limit: 1 });
+      expect.fail('Expected ProtoPediaApiError to be thrown');
+    } catch (e) {
+      expect(e).toBeInstanceOf(ProtoPediaApiError);
+      const err = e as ProtoPediaApiError;
+      expect(err.status).toBe(500);
+      expect(typeof err.body === 'string').toBe(true);
+      if (typeof err.body === 'string') {
+        expect(err.body.toLowerCase()).toContain('<html');
+      }
+      expect(err.headers['content-type']?.toLowerCase()).toContain('text/html');
+    }
+  });
+
+  it('omits empty-string query parameters', async () => {
+    let capturedRequest: Request | undefined;
+    server.use(
+      createListPrototypesHandler({ onRequest: (r) => (capturedRequest = r) }),
+    );
+
+    const client = new ProtoPediaApiClient({ token: 't', baseUrl: BASE_URL });
+    await client.listPrototypes({ tagNm: '', materialNm: '' });
+
+    if (!capturedRequest) throw new Error('no request captured');
+    const url = new URL(capturedRequest.url);
+    // Empty strings should not be present
+    expect(url.searchParams.get('tagNm')).toBeNull();
+    expect(url.searchParams.get('materialNm')).toBeNull();
   });
 
   it('surfaces JSON error payload and propagates headers on application/json error', async () => {
