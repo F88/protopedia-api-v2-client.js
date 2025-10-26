@@ -86,3 +86,39 @@ export const createListPrototypesPassthroughHandlers = [
 export function createListPrototypesPassthroughHandler(response: Response) {
   return http.get('https://example.com/api/v2/prototype/list', () => response);
 }
+
+/**
+ * Returns a TSV document for the TSV endpoint.
+ */
+export function createDownloadPrototypesTsvHandler(
+  options: ListPrototypesHandlerOptions = {},
+) {
+  const tsv = 'id\tname\n42\tTest Work\n';
+  return http.get(
+    'https://example.com/api/v2/prototype/list/tsv',
+    ({ request }) => {
+      options.onRequest?.(request);
+      return new HttpResponse(tsv, {
+        headers: {
+          'Content-Type': 'text/tab-separated-values; charset=utf-8',
+        },
+      });
+    },
+  );
+}
+
+/**
+ * Returns a JSON error body with an application/json content type.
+ */
+export function createListPrototypesJsonErrorHandler() {
+  const body = { error: 'bad_request', message: 'nope' };
+  return http.get('https://example.com/api/v2/prototype/list', () =>
+    HttpResponse.json(body, {
+      status: 400,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'X-Custom': 'abc',
+      },
+    }),
+  );
+}
