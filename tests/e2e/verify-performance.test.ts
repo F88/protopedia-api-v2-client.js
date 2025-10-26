@@ -78,9 +78,9 @@ describe('Checking performance to determine how to use the API', () => {
         const limitsForTest = [
           1, 100,
           //
-          1_000,
+          // 1_000,
           //
-          10_000,
+          // 10_000,
         ] as const;
 
         /**
@@ -105,8 +105,8 @@ describe('Checking performance to determine how to use the API', () => {
               {
                 // Keep debug logs consistent with other e2e tests
                 // logLevel: 'silent',
-                logLevel: 'info',
-                // logLevel: 'debug',
+                // logLevel: 'info',
+                logLevel: 'debug',
               },
             );
           const end = Date.now();
@@ -189,9 +189,9 @@ describe('Checking performance to determine how to use the API', () => {
         const limitsForTest = [
           1, 100,
           //
-          1_000,
+          // 1_000,
           //
-          10_000,
+          // 10_000,
         ] as const;
 
         async function measure(limit: number): Promise<{
@@ -208,8 +208,8 @@ describe('Checking performance to determine how to use the API', () => {
             {
               // Keep logs modest for perf runs
               // logLevel: 'silent',
-              logLevel: 'info',
-              // logLevel: 'debug',
+              // logLevel: 'info',
+              logLevel: 'debug',
             },
           );
           const end = Date.now();

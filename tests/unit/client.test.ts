@@ -387,6 +387,42 @@ describe('ProtoPediaApiClient', () => {
       });
     });
 
+    it('propagates headers on JSON error responses', async () => {
+      const errorBody = { error: 'bad_request', message: 'nope' } as const;
+      const fetchMock = vi.fn<FetchFn>(() =>
+        Promise.resolve(
+          new Response(JSON.stringify(errorBody), {
+            status: 400,
+            statusText: 'Bad Request',
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+              'X-Custom': 'abc',
+            },
+          }),
+        ),
+      );
+
+      const { logger } = createTestLogger();
+      const client = new ProtoPediaApiClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger,
+        logLevel: 'silent',
+      });
+
+      try {
+        await client.listPrototypes();
+        expect.fail('should have thrown');
+      } catch (e) {
+        const err = e as ProtoPediaApiError;
+        expect(err).toBeInstanceOf(ProtoPediaApiError);
+        expect(err.status).toBe(400);
+        expect(err.headers['content-type']).toContain('application/json');
+        expect(err.headers['x-custom']).toBe('abc');
+      }
+    });
+
     it('falls back to parseError when failing to read error body', async () => {
       // Simulate a response where both json() and text() fail
       const failingResponse = {
@@ -413,6 +449,106 @@ describe('ProtoPediaApiClient', () => {
         name: 'ProtoPediaApiError',
         status: 500,
         body: { parseError: 'read fail' },
+      });
+    });
+
+    it('uses text fallback when Content-Type is application/json but json() fails', async () => {
+      const failingJsonResponse = {
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        url: `${BASE_URL}/prototype/list`,
+        headers: new Headers({
+          'Content-Type': 'application/json; charset=utf-8',
+        }),
+        json: () => Promise.reject(new Error('bad json')),
+        text: () => Promise.resolve('fallback text body'),
+        clone: () => failingJsonResponse as unknown as Response,
+      } as unknown as Response;
+
+      const fetchMock = vi.fn<FetchFn>(() =>
+        Promise.resolve(failingJsonResponse),
+      );
+
+      const { logger } = createTestLogger();
+      const client = new ProtoPediaApiClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger,
+        logLevel: 'silent',
+      });
+
+      await expect(client.listPrototypes()).rejects.toMatchObject({
+        name: 'ProtoPediaApiError',
+        status: 500,
+        body: 'fallback text body',
+      });
+    });
+
+    it('when non-JSON Content-Type: uses json() if text() fails', async () => {
+      const textFailsJsonSucceeds = {
+        ok: false,
+        status: 502,
+        statusText: 'Bad Gateway',
+        url: `${BASE_URL}/prototype/list`,
+        headers: new Headers({ 'Content-Type': 'text/plain' }),
+        text: () => Promise.reject(new Error('text broken')),
+        json: () => Promise.resolve({ fallback: 'json-body' }),
+      } as unknown as Response;
+
+      const fetchMock = vi.fn<FetchFn>(() =>
+        Promise.resolve(textFailsJsonSucceeds),
+      );
+
+      const { logger } = createTestLogger();
+      const client = new ProtoPediaApiClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger,
+        logLevel: 'silent',
+      });
+
+      await expect(client.listPrototypes()).rejects.toMatchObject({
+        name: 'ProtoPediaApiError',
+        status: 502,
+        body: { fallback: 'json-body' },
+      });
+    });
+
+    it('when application/json and both json() and text() fail, returns parseError from text() branch', async () => {
+      const readFail = new Error('unreadable');
+      const failingClone = {
+        json: () => Promise.reject(new Error('bad json')),
+      };
+      const failingResponse = {
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        url: `${BASE_URL}/prototype/list`,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        // clone().json() fails
+        clone: () => failingClone as unknown as Response,
+        // then response.text() also fails
+        text: () => Promise.reject(readFail),
+      } as unknown as Response;
+
+      const fetchMock = vi.fn<FetchFn>(() => Promise.resolve(failingResponse));
+
+      const { logger } = createTestLogger();
+      const client = new ProtoPediaApiClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger,
+        logLevel: 'silent',
+      });
+
+      await expect(client.listPrototypes()).rejects.toMatchObject({
+        name: 'ProtoPediaApiError',
+        status: 500,
+        body: { parseError: 'unreadable' },
       });
     });
 
