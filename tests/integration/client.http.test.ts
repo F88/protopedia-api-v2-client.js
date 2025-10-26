@@ -94,4 +94,37 @@ describe('ProtoPediaApiClient (integration)', () => {
       ).toContain('text/html');
     }
   });
+
+  it('encodes special characters in query parameters correctly', async () => {
+    let capturedRequest: Request | undefined;
+
+    server.use(
+      createListPrototypesHandler({
+        onRequest: (request) => {
+          capturedRequest = request;
+        },
+      }),
+    );
+
+    const client = new ProtoPediaApiClient({
+      token: 'token-123',
+      baseUrl: BASE_URL,
+    });
+
+    const special = '日本 語&記号,%/#?+';
+    await client.listPrototypes({
+      tagNm: special,
+      materialNm: special,
+      limit: 1,
+    });
+
+    if (!capturedRequest) {
+      throw new Error('MSW handler did not capture a request');
+    }
+
+    const url = new URL(capturedRequest.url);
+    expect(url.searchParams.get('tagNm')).toBe(special);
+    expect(url.searchParams.get('materialNm')).toBe(special);
+    expect(url.searchParams.get('limit')).toBe('1');
+  });
 });
