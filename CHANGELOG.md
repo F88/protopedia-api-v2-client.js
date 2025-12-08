@@ -5,7 +5,7 @@
 ### BREAKING CHANGES
 
 - **Error structure refactored**: `ProtoPediaApiError` now groups request information under a `req` object
-    - `error.method` and `error.url` are now `error.req.method` and `error.req.url`
+    - `error.url` is now `error.req.url` and `error.req.method` is newly added`
     - Error message simplified from "Request failed with status {status}" to "API request failed"
     - Migration guide:
 
