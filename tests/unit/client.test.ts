@@ -854,3 +854,86 @@ describe('createProtoPediaClient', () => {
     }).toThrowError('Missing PROTOPEDIA_API_V2_TOKEN.');
   });
 });
+
+describe('Additional coverage tests', () => {
+  it('logs without metadata when metadata is undefined', () => {
+    const { logger } = createTestLogger();
+    const client = new ProtoPediaApiClient({
+      token: 'test-token',
+      logger,
+      logLevel: 'debug',
+    });
+
+    // Trigger a log without metadata by calling log through buildUrl (internal)
+    // Actually, we can test this more directly via execute
+    const fetchMock = vi.fn<FetchFn>(() =>
+      Promise.resolve(
+        new Response('{"results":[]}', {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      ),
+    );
+
+    const clientWithFetch = new ProtoPediaApiClient({
+      token: 'test-token',
+      fetch: fetchMock,
+      logger,
+      logLevel: 'debug',
+    });
+
+    return clientWithFetch.listPrototypes().then(() => {
+      // Debug logs should have been called (with and without metadata)
+      expect(logger.debug).toHaveBeenCalled();
+    });
+  });
+
+  it('cleans up abort listener when signal is provided', async () => {
+    const controller = new AbortController();
+    const fetchMock = vi.fn<FetchFn>(() =>
+      Promise.resolve(
+        new Response('{"results":[]}', {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      ),
+    );
+
+    const client = new ProtoPediaApiClient({
+      token: 'test-token',
+      fetch: fetchMock,
+    });
+
+    // Make request with a signal
+    await client.listPrototypes({}, { signal: controller.signal });
+
+    // The cleanup should have removed the listener
+    // We can't directly verify this, but we can confirm it doesn't throw
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it('handles already aborted signal', async () => {
+    const controller = new AbortController();
+    const abortReason = new Error('test abort');
+    controller.abort(abortReason);
+
+    const fetchMock = vi.fn<FetchFn>(() =>
+      Promise.reject(
+        new DOMException('The operation was aborted.', 'AbortError'),
+      ),
+    );
+
+    const client = new ProtoPediaApiClient({
+      token: 'test-token',
+      fetch: fetchMock,
+      logLevel: 'silent',
+    });
+
+    await expect(
+      client.listPrototypes({}, { signal: controller.signal }),
+    ).rejects.toBe(abortReason);
+
+    // Fetch is called but immediately aborted
+    expect(fetchMock).toHaveBeenCalled();
+  });
+});

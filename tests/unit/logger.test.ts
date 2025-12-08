@@ -337,4 +337,19 @@ describe('createLoggerConfig with console fallbacks', () => {
     expect(warn).not.toHaveBeenCalled();
     expect(error).not.toHaveBeenCalled();
   });
+
+  it('uses fallback function when provided and wraps it', () => {
+    const customDebug = vi.fn();
+    const logger = {
+      error: vi.fn(),
+      warn: vi.fn(),
+      info: vi.fn(),
+      debug: customDebug,
+    };
+
+    const cfg = createLoggerConfig(logger, 'debug');
+    cfg.logger.debug('test message', { extra: 'data' });
+
+    expect(customDebug).toHaveBeenCalledWith('test message', { extra: 'data' });
+  });
 });
