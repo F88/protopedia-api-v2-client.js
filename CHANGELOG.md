@@ -1,5 +1,9 @@
 # protopedia-api-v2-client.js
 
+## 1.2.1 - 2025-12-08
+
+- Update dependencies for security improvements.
+
 ## 1.2.0 - 2025-10-26
 
 ### Changed
