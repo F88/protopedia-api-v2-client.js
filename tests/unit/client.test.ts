@@ -858,11 +858,6 @@ describe('createProtoPediaClient', () => {
 describe('Additional coverage tests', () => {
   it('logs without metadata when metadata is undefined', () => {
     const { logger } = createTestLogger();
-    const client = new ProtoPediaApiClient({
-      token: 'test-token',
-      logger,
-      logLevel: 'debug',
-    });
 
     // Trigger a log without metadata by calling log through buildUrl (internal)
     // Actually, we can test this more directly via execute

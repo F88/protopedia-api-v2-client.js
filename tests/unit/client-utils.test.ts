@@ -30,10 +30,6 @@ describe('client-utils', () => {
 
     it('converts boolean values to string true/false', () => {
       // Test the boolean handling logic directly, even though current API doesn't use it
-      const params = serializeListPrototypeParams({
-        limit: 10,
-      } as const);
-
       // Manually test the internal logic by creating a URLSearchParams
       const testParams = new URLSearchParams();
       const put = (
