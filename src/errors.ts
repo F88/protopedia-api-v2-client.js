@@ -1,15 +1,25 @@
 /**
+ * Request information associated with an API error.
+ */
+export interface ProtoPediaApiErrorRequest {
+  /** HTTP method used for the request. */
+  method: string;
+  /** Fully qualified request URL that triggered the failure. */
+  url: string;
+}
+
+/**
  * Configuration bag for constructing a {@link ProtoPediaApiError} instance.
  */
 export interface ProtoPediaApiErrorOptions {
   /** Human readable explanation of the failure. */
   message: string;
+  /** Request information. */
+  req: ProtoPediaApiErrorRequest;
   /** HTTP status code returned by the ProtoPedia API. */
   status: number;
   /** HTTP status text returned by the ProtoPedia API. */
   statusText: string;
-  /** Fully qualified request URL that triggered the failure. */
-  url: string;
   /** Optional parsed response payload for additional diagnostics. */
   body?: unknown;
   /** Optional subset of HTTP headers that are safe to surface to callers. */
@@ -22,9 +32,9 @@ export interface ProtoPediaApiErrorOptions {
  * Error type used to represent unsuccessful ProtoPedia API responses.
  */
 export class ProtoPediaApiError extends Error {
+  readonly req: ProtoPediaApiErrorRequest;
   readonly status: number;
   readonly statusText: string;
-  readonly url: string;
   readonly body: unknown;
   readonly headers: Record<string, string>;
 
@@ -35,9 +45,9 @@ export class ProtoPediaApiError extends Error {
   constructor(options: ProtoPediaApiErrorOptions) {
     super(options.message, { cause: options.cause });
     this.name = 'ProtoPediaApiError';
+    this.req = { ...options.req };
     this.status = options.status;
     this.statusText = options.statusText;
-    this.url = options.url;
     this.body = options.body ?? null;
     this.headers = { ...options.headers };
   }
@@ -50,9 +60,9 @@ export class ProtoPediaApiError extends Error {
     return {
       name: this.name,
       message: this.message,
+      req: this.req,
       status: this.status,
       statusText: this.statusText,
-      url: this.url,
       body: this.body,
       headers: this.headers,
     };

@@ -50,7 +50,7 @@ const DEFAULT_TIMEOUT_MS = 15_000;
 type FetchFn = typeof fetch;
 
 interface ExecuteOptions {
-  readonly method: string;
+  readonly method: 'GET';
   readonly headers?: HeadersInit;
   readonly body?: BodyInit | null;
 }
@@ -105,10 +105,11 @@ export class ProtoPediaApiClient {
       '/prototype/list',
       serializeListPrototypeParams(params),
     );
+    const method = 'GET';
     const response = await this.execute(
       url,
       {
-        method: 'GET',
+        method,
         headers: {
           Accept: 'application/json',
         },
@@ -119,6 +120,7 @@ export class ProtoPediaApiClient {
 
     const payload = (await parseJson(
       response,
+      method,
       'listPrototype',
     )) as ListPrototypesApiResponse;
     this.log('debug', 'listPrototype response payload', payload, logLevelValue);
@@ -139,10 +141,11 @@ export class ProtoPediaApiClient {
       '/prototype/list/tsv',
       serializeListPrototypeParams(params),
     );
+    const method = 'GET';
     const response = await this.execute(
       url,
       {
-        method: 'GET',
+        method,
         headers: {
           Accept: 'application/json',
         },
@@ -216,18 +219,8 @@ export class ProtoPediaApiClient {
         logLevelValue,
       );
       if (!response.ok) {
-        const apiError = await buildError(response);
-        this.log(
-          'error',
-          'HTTP request failed',
-          {
-            method,
-            url,
-            status: response.status,
-            error: apiError,
-          },
-          logLevelValue,
-        );
+        const apiError = await buildError(response, method);
+        this.log('error', 'API request failed', apiError, logLevelValue);
         throw apiError;
       }
       return response;
@@ -372,6 +365,7 @@ export function createProtoPediaClient(
 
 async function parseJson(
   response: Response,
+  method: string,
   context: string,
 ): Promise<unknown> {
   try {
@@ -380,9 +374,12 @@ async function parseJson(
     const text = await response.text();
     throw new ProtoPediaApiError({
       message: `Failed to parse ${context} response as JSON`,
+      req: {
+        method,
+        url: response.url,
+      },
       status: response.status,
       statusText: response.statusText,
-      url: response.url,
       headers: headersToPlainObject(response.headers),
       body: text,
       cause: error,
@@ -390,7 +387,10 @@ async function parseJson(
   }
 }
 
-async function buildError(response: Response): Promise<ProtoPediaApiError> {
+async function buildError(
+  response: Response,
+  method: string,
+): Promise<ProtoPediaApiError> {
   let body: unknown = null;
 
   // Prefer JSON when content-type hints JSON; otherwise text. Use clone() to
@@ -422,10 +422,13 @@ async function buildError(response: Response): Promise<ProtoPediaApiError> {
   }
 
   return new ProtoPediaApiError({
-    message: `Request failed with status ${response.status}`,
+    message: 'API request failed',
+    req: {
+      method,
+      url: response.url,
+    },
     status: response.status,
     statusText: response.statusText,
-    url: response.url,
     headers: headersToPlainObject(response.headers),
     body,
   });

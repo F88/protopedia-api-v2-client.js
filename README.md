@@ -98,7 +98,7 @@ try {
             'API error',
             err.status,
             err.statusText,
-            err.url,
+            err.req.url,
             err.body,
         );
     } else {

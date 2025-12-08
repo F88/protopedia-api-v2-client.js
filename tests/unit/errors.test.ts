@@ -11,9 +11,12 @@ describe('ProtoPediaApiError', () => {
 
     const error = new ProtoPediaApiError({
       message: 'Request failed',
+      req: {
+        method: 'GET',
+        url: 'https://example.com/resource',
+      },
       status: 404,
       statusText: 'Not Found',
-      url: 'https://example.com/resource',
       body: { code: 'NOT_FOUND' },
       headers,
       cause,
@@ -21,9 +24,12 @@ describe('ProtoPediaApiError', () => {
 
     expect(error.name).toBe('ProtoPediaApiError');
     expect(error.message).toBe('Request failed');
+    expect(error.req).toEqual({
+      method: 'GET',
+      url: 'https://example.com/resource',
+    });
     expect(error.status).toBe(404);
     expect(error.statusText).toBe('Not Found');
-    expect(error.url).toBe('https://example.com/resource');
     expect(error.body).toEqual({ code: 'NOT_FOUND' });
     expect(error.headers).toEqual({ Accept: 'application/json' });
     expect(error.headers).not.toBe(headers);
@@ -35,9 +41,12 @@ describe('ProtoPediaApiError', () => {
   it('defaults optional properties when omitted', () => {
     const error = new ProtoPediaApiError({
       message: 'Server error',
+      req: {
+        method: 'POST',
+        url: 'https://example.com/resource',
+      },
       status: 500,
       statusText: 'Internal Server Error',
-      url: 'https://example.com/resource',
     });
 
     expect(error.body).toBeNull();
@@ -47,9 +56,12 @@ describe('ProtoPediaApiError', () => {
   it('serialises to JSON with the public fields', () => {
     const error = new ProtoPediaApiError({
       message: 'Request failed',
+      req: {
+        method: 'DELETE',
+        url: 'https://example.com/resource',
+      },
       status: 400,
       statusText: 'Bad Request',
-      url: 'https://example.com/resource',
       body: { errors: ['missing-field'] },
       headers: {
         'Content-Type': 'application/json',
@@ -61,9 +73,12 @@ describe('ProtoPediaApiError', () => {
     expect(json).toEqual({
       name: 'ProtoPediaApiError',
       message: 'Request failed',
+      req: {
+        method: 'DELETE',
+        url: 'https://example.com/resource',
+      },
       status: 400,
       statusText: 'Bad Request',
-      url: 'https://example.com/resource',
       body: { errors: ['missing-field'] },
       headers: {
         'Content-Type': 'application/json',

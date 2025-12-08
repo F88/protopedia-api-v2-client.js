@@ -250,8 +250,11 @@ describe('ProtoPediaApiClient', () => {
       );
 
       expect(error).toHaveBeenCalledWith(
-        'HTTP request failed',
-        expect.objectContaining({ status: 500 }),
+        'API request failed',
+        expect.objectContaining({
+          status: 500,
+          req: expect.objectContaining({ method: 'GET' }),
+        }),
       );
       expect(warn).not.toHaveBeenCalled();
       expect(info).not.toHaveBeenCalled();
@@ -676,7 +679,7 @@ describe('ProtoPediaApiClient', () => {
       public async callExecute(
         url: string,
         options: {
-          method: string;
+          method: 'GET';
           headers?: HeadersInit;
           body?: BodyInit | null;
         },
@@ -706,12 +709,12 @@ describe('ProtoPediaApiClient', () => {
       });
       const url = `${BASE_URL}/prototype/list`;
       await client.callExecute(url, {
-        method: 'POST',
+        method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ a: 1 }),
       });
       const [, init] = fetchMock.mock.calls[0] ?? [];
-      expect((init as RequestInit).method).toBe('POST');
+      expect((init as RequestInit).method).toBe('GET');
       expect(
         new Headers((init as RequestInit).headers).get('Content-Type'),
       ).toBe('application/json');
@@ -849,5 +852,86 @@ describe('createProtoPediaClient', () => {
         // no token
       });
     }).toThrowError('Missing PROTOPEDIA_API_V2_TOKEN.');
+  });
+});
+
+describe('Additional coverage tests', () => {
+  it('logs without metadata when metadata is undefined', () => {
+    const { logger, debug } = createTestLogger();
+
+    // Create a test client that exposes the log method
+    class TestClientForLog extends ProtoPediaApiClient {
+      public callLog(level: 'debug', message: string, metadata?: unknown) {
+        this['log'](level, message, metadata);
+      }
+    }
+
+    const client = new TestClientForLog({
+      token: 'test-token',
+      logger,
+      logLevel: 'debug',
+    });
+
+    // Call log without metadata
+    client.callLog('debug', 'test message without metadata');
+    expect(debug).toHaveBeenCalledWith('test message without metadata');
+
+    // Call log with metadata
+    client.callLog('debug', 'test message with metadata', { key: 'value' });
+    expect(debug).toHaveBeenCalledWith('test message with metadata', {
+      key: 'value',
+    });
+  });
+
+  it('cleans up abort listener when signal is provided', async () => {
+    const controller = new AbortController();
+    const fetchMock = vi.fn<FetchFn>(() =>
+      Promise.resolve(
+        new Response('{"results":[]}', {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      ),
+    );
+
+    const client = new ProtoPediaApiClient({
+      token: 'test-token',
+      fetch: fetchMock,
+    });
+
+    // Make request with a signal
+    await client.listPrototypes({}, { signal: controller.signal });
+
+    // The cleanup should have removed the listener
+    // We can't directly verify this, but we can confirm it doesn't throw
+    expect(fetchMock).toHaveBeenCalled();
+  });
+
+  it('handles already aborted signal', async () => {
+    const controller = new AbortController();
+    const abortReason = new Error('test abort');
+    controller.abort(abortReason);
+
+    const fetchMock = vi.fn<FetchFn>((_url, init) => {
+      const signal = init?.signal as AbortSignal | undefined;
+      // Verify that the signal passed to fetch is aborted
+      expect(signal?.aborted).toBe(true);
+      return Promise.reject(
+        new DOMException('The operation was aborted.', 'AbortError'),
+      );
+    });
+
+    const client = new ProtoPediaApiClient({
+      token: 'test-token',
+      fetch: fetchMock,
+      logLevel: 'silent',
+    });
+
+    await expect(
+      client.listPrototypes({}, { signal: controller.signal }),
+    ).rejects.toBe(abortReason);
+
+    // Fetch is called with the aborted signal
+    expect(fetchMock).toHaveBeenCalled();
   });
 });

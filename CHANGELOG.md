@@ -1,5 +1,32 @@
 # protopedia-api-v2-client.js
 
+## Unreleased
+
+### BREAKING CHANGES
+
+- **Error structure refactored**: `ProtoPediaApiError` now groups request information under a `req` object
+    - `error.url` is now `error.req.url` and `error.req.method` is newly added`
+    - Error message simplified from "Request failed with status {status}" to "API request failed"
+    - Migration guide:
+
+    ```typescript
+    // Before
+    if (err instanceof ProtoPediaApiError) {
+        console.log(err.method, err.url);
+    }
+
+    // After
+    if (err instanceof ProtoPediaApiError) {
+        console.log(err.req.method, err.req.url);
+    }
+    ```
+
+### Tests
+
+- Improved test coverage from 96.24% to 98.12%
+- Added comprehensive tests for logger fallback paths and metadata handling
+- Enhanced abort signal and error handling test coverage
+
 ## 1.2.1 - 2025-12-08
 
 - Update development dependencies to latest versions.

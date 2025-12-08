@@ -68,7 +68,7 @@ describe('listPrototypes', () => {
       if (error instanceof ProtoPediaApiError) {
         // Error
         expect(error.name).toBe('ProtoPediaApiError');
-        expect(error.message).toBe('Request failed with status 401');
+        expect(error.message).toBe('API request failed');
         // ProtoPediaApiError
         expect(error.status).toBe(401);
         expect(error.statusText).toBe('Unauthorized');

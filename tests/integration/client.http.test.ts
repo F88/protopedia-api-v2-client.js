@@ -74,7 +74,7 @@ describe('ProtoPediaApiClient (integration)', () => {
       expect(e).toBeInstanceOf(Error);
       const error = e as ProtoPediaApiError;
       expect(error.name).toBe('ProtoPediaApiError');
-      expect(error.message).toBe('Request failed with status 500');
+      expect(error.message).toBe('API request failed');
       expect(error.cause).toBeUndefined();
 
       // Assert as ProtoPediaApiError
@@ -82,7 +82,8 @@ describe('ProtoPediaApiClient (integration)', () => {
       const protoPediaApiError = e as ProtoPediaApiError;
       expect(protoPediaApiError.status).toBe(500);
       expect(protoPediaApiError.statusText).toBe('Internal Server Error');
-      expect(protoPediaApiError.url).toBe(
+      expect(protoPediaApiError.req.method).toBe('GET');
+      expect(protoPediaApiError.req.url).toBe(
         `${BASE_URL}/prototype/list?limit=2&offset=0`,
       );
       expect(typeof protoPediaApiError.body === 'string').toBe(true);
