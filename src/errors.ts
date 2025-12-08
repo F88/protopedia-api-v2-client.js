@@ -4,6 +4,8 @@
 export interface ProtoPediaApiErrorOptions {
   /** Human readable explanation of the failure. */
   message: string;
+  /** HTTP method used for the request. */
+  method: string;
   /** HTTP status code returned by the ProtoPedia API. */
   status: number;
   /** HTTP status text returned by the ProtoPedia API. */
@@ -22,6 +24,7 @@ export interface ProtoPediaApiErrorOptions {
  * Error type used to represent unsuccessful ProtoPedia API responses.
  */
 export class ProtoPediaApiError extends Error {
+  readonly method: string;
   readonly status: number;
   readonly statusText: string;
   readonly url: string;
@@ -35,6 +38,7 @@ export class ProtoPediaApiError extends Error {
   constructor(options: ProtoPediaApiErrorOptions) {
     super(options.message, { cause: options.cause });
     this.name = 'ProtoPediaApiError';
+    this.method = options.method;
     this.status = options.status;
     this.statusText = options.statusText;
     this.url = options.url;
@@ -50,6 +54,7 @@ export class ProtoPediaApiError extends Error {
     return {
       name: this.name,
       message: this.message,
+      method: this.method,
       status: this.status,
       statusText: this.statusText,
       url: this.url,

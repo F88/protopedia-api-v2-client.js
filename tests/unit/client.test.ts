@@ -250,8 +250,8 @@ describe('ProtoPediaApiClient', () => {
       );
 
       expect(error).toHaveBeenCalledWith(
-        'HTTP request failed',
-        expect.objectContaining({ status: 500 }),
+        'API request failed',
+        expect.objectContaining({ status: 500, method: 'GET' }),
       );
       expect(warn).not.toHaveBeenCalled();
       expect(info).not.toHaveBeenCalled();

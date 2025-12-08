@@ -74,7 +74,7 @@ describe('ProtoPediaApiClient (integration)', () => {
       expect(e).toBeInstanceOf(Error);
       const error = e as ProtoPediaApiError;
       expect(error.name).toBe('ProtoPediaApiError');
-      expect(error.message).toBe('Request failed with status 500');
+      expect(error.message).toBe('API request failed');
       expect(error.cause).toBeUndefined();
 
       // Assert as ProtoPediaApiError
