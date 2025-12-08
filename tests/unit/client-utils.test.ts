@@ -27,31 +27,6 @@ describe('client-utils', () => {
       const keys = Array.from(params.keys());
       expect(keys.sort()).toEqual(['limit', 'materialNm', 'tagNm']);
     });
-
-    it('converts boolean values to string true/false', () => {
-      // Test the boolean handling logic directly, even though current API doesn't use it
-      // Manually test the internal logic by creating a URLSearchParams
-      const testParams = new URLSearchParams();
-      const put = (
-        key: string,
-        value: string | number | boolean | null | undefined,
-      ) => {
-        if (value == null) {
-          return;
-        }
-        if (typeof value === 'boolean') {
-          testParams.set(key, value ? 'true' : 'false');
-          return;
-        }
-        testParams.set(key, String(value));
-      };
-
-      put('allOpen', true);
-      put('isNew', false);
-
-      expect(testParams.get('allOpen')).toBe('true');
-      expect(testParams.get('isNew')).toBe('false');
-    });
   });
 
   describe('mergeHeaders', () => {
