@@ -374,10 +374,12 @@ async function parseJson(
     const text = await response.text();
     throw new ProtoPediaApiError({
       message: `Failed to parse ${context} response as JSON`,
-      method,
+      req: {
+        method,
+        url: response.url,
+      },
       status: response.status,
       statusText: response.statusText,
-      url: response.url,
       headers: headersToPlainObject(response.headers),
       body: text,
       cause: error,
@@ -421,10 +423,12 @@ async function buildError(
 
   return new ProtoPediaApiError({
     message: 'API request failed',
-    method,
+    req: {
+      method,
+      url: response.url,
+    },
     status: response.status,
     statusText: response.statusText,
-    url: response.url,
     headers: headersToPlainObject(response.headers),
     body,
   });

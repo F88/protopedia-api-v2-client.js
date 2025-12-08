@@ -251,7 +251,10 @@ describe('ProtoPediaApiClient', () => {
 
       expect(error).toHaveBeenCalledWith(
         'API request failed',
-        expect.objectContaining({ status: 500, method: 'GET' }),
+        expect.objectContaining({
+          status: 500,
+          req: expect.objectContaining({ method: 'GET' }),
+        }),
       );
       expect(warn).not.toHaveBeenCalled();
       expect(info).not.toHaveBeenCalled();
@@ -676,7 +679,7 @@ describe('ProtoPediaApiClient', () => {
       public async callExecute(
         url: string,
         options: {
-          method: string;
+          method: 'GET';
           headers?: HeadersInit;
           body?: BodyInit | null;
         },
@@ -706,12 +709,12 @@ describe('ProtoPediaApiClient', () => {
       });
       const url = `${BASE_URL}/prototype/list`;
       await client.callExecute(url, {
-        method: 'POST',
+        method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ a: 1 }),
       });
       const [, init] = fetchMock.mock.calls[0] ?? [];
-      expect((init as RequestInit).method).toBe('POST');
+      expect((init as RequestInit).method).toBe('GET');
       expect(
         new Headers((init as RequestInit).headers).get('Content-Type'),
       ).toBe('application/json');

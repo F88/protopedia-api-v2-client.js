@@ -82,7 +82,8 @@ describe('ProtoPediaApiClient (integration)', () => {
       const protoPediaApiError = e as ProtoPediaApiError;
       expect(protoPediaApiError.status).toBe(500);
       expect(protoPediaApiError.statusText).toBe('Internal Server Error');
-      expect(protoPediaApiError.url).toBe(
+      expect(protoPediaApiError.req.method).toBe('GET');
+      expect(protoPediaApiError.req.url).toBe(
         `${BASE_URL}/prototype/list?limit=2&offset=0`,
       );
       expect(typeof protoPediaApiError.body === 'string').toBe(true);
