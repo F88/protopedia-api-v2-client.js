@@ -857,29 +857,29 @@ describe('createProtoPediaClient', () => {
 
 describe('Additional coverage tests', () => {
   it('logs without metadata when metadata is undefined', () => {
-    const { logger } = createTestLogger();
+    const { logger, debug } = createTestLogger();
 
-    // Trigger a log without metadata by calling log through buildUrl (internal)
-    // Actually, we can test this more directly via execute
-    const fetchMock = vi.fn<FetchFn>(() =>
-      Promise.resolve(
-        new Response('{"results":[]}', {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        }),
-      ),
-    );
+    // Create a test client that exposes the log method
+    class TestClientForLog extends ProtoPediaApiClient {
+      public callLog(level: 'debug', message: string, metadata?: unknown) {
+        this['log'](level, message, metadata);
+      }
+    }
 
-    const clientWithFetch = new ProtoPediaApiClient({
+    const client = new TestClientForLog({
       token: 'test-token',
-      fetch: fetchMock,
       logger,
       logLevel: 'debug',
     });
 
-    return clientWithFetch.listPrototypes().then(() => {
-      // Debug logs should have been called (with and without metadata)
-      expect(logger.debug).toHaveBeenCalled();
+    // Call log without metadata
+    client.callLog('debug', 'test message without metadata');
+    expect(debug).toHaveBeenCalledWith('test message without metadata');
+
+    // Call log with metadata
+    client.callLog('debug', 'test message with metadata', { key: 'value' });
+    expect(debug).toHaveBeenCalledWith('test message with metadata', {
+      key: 'value',
     });
   });
 
@@ -912,11 +912,14 @@ describe('Additional coverage tests', () => {
     const abortReason = new Error('test abort');
     controller.abort(abortReason);
 
-    const fetchMock = vi.fn<FetchFn>(() =>
-      Promise.reject(
+    const fetchMock = vi.fn<FetchFn>((_url, init) => {
+      const signal = init?.signal as AbortSignal | undefined;
+      // Verify that the signal passed to fetch is aborted
+      expect(signal?.aborted).toBe(true);
+      return Promise.reject(
         new DOMException('The operation was aborted.', 'AbortError'),
-      ),
-    );
+      );
+    });
 
     const client = new ProtoPediaApiClient({
       token: 'test-token',
@@ -928,7 +931,7 @@ describe('Additional coverage tests', () => {
       client.listPrototypes({}, { signal: controller.signal }),
     ).rejects.toBe(abortReason);
 
-    // Fetch is called but immediately aborted
+    // Fetch is called with the aborted signal
     expect(fetchMock).toHaveBeenCalled();
   });
 });

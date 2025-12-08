@@ -34,6 +34,53 @@ describe('createLoggerConfig', () => {
     expect(config.level).toBe('error');
     expect(config.levelValue).toBe(getLogLevelValue('error'));
   });
+
+  it('uses fallback function when both candidate and fallback are provided but candidate is undefined', () => {
+    const fallbackFn = vi.fn();
+    const error = vi.fn();
+
+    const partialLogger = {
+      error,
+      warn: fallbackFn,
+      info: undefined,
+      debug: undefined,
+    } as unknown as Logger;
+
+    const config = createLoggerConfig(partialLogger, undefined);
+
+    // info should fall back to warn (fallbackFn)
+    config.logger.info('info via fallback');
+    expect(fallbackFn).toHaveBeenCalledWith('info via fallback');
+
+    // debug should also fall back through the chain
+    config.logger.debug('debug via fallback');
+    expect(fallbackFn).toHaveBeenCalledWith('debug via fallback');
+  });
+
+  it('wraps logger methods to handle metadata correctly', () => {
+    const errorFn = vi.fn();
+    const debugFn = vi.fn();
+
+    const partialLogger = {
+      error: errorFn,
+      warn: undefined,
+      info: undefined,
+      debug: debugFn,
+    } as unknown as Logger;
+
+    const config = createLoggerConfig(partialLogger, undefined);
+
+    // Call without metadata - should call the underlying function without metadata
+    config.logger.error('error without metadata');
+    expect(errorFn).toHaveBeenCalledWith('error without metadata');
+    expect(errorFn).toHaveBeenCalledTimes(1);
+
+    // Call with metadata - should pass it through
+    config.logger.debug('debug with metadata', { key: 'value' });
+    expect(debugFn).toHaveBeenCalledWith('debug with metadata', {
+      key: 'value',
+    });
+  });
 });
 
 describe('shouldLog', () => {
