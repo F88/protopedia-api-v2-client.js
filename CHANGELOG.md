@@ -12,12 +12,12 @@
     ```typescript
     // Before
     if (err instanceof ProtoPediaApiError) {
-      console.log(err.method, err.url);
+        console.log(err.method, err.url);
     }
 
     // After
     if (err instanceof ProtoPediaApiError) {
-      console.log(err.req.method, err.req.url);
+        console.log(err.req.method, err.req.url);
     }
     ```
 
