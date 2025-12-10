@@ -45,12 +45,29 @@ export interface ListPrototypesApiResponse {
  * This is defined based on sampling actual data, not the API specification.
  * It may need to be updated when the API specification changes.
  *
- * Some fields (releaseDate, teamNm, users, freeComment, thanksFlg) are optional
- * because they are not present in all prototype records returned by the API.
- * Analysis of 5,861 prototypes (IDs 1-7926) shows varying presence rates:
- * - teamNm: 90.77% (542 missing)
+ * Some fields are optional because they are not present in all prototype records.
+ * Analysis of 5,861 prototypes (IDs 1-7926) shows varying presence rates.
+ * Fields with less than 100% presence (excluding empty strings):
+ * - relatedLink5: 1.93% (2,038 missing, 3,710 empty)
+ * - relatedLink4: 3.98% (2,038 missing, 3,590 empty)
+ * - relatedLink3: 8.07% (2,038 missing, 3,350 empty)
+ * - awards: 10.68% (5,235 missing)
+ * - relatedLink2: 15.24% (2,038 missing, 2,930 empty)
+ * - relatedLink: 28.82% (1,723 missing, 2,449 empty)
+ * - nid: 32.20% (3,974 missing)
+ * - teamNm: 33.82% (541 missing, 3,338 empty)
+ * - officialLink: 49.84% (1,016 missing, 1,924 empty)
+ * - systemDescription: 54.21% (1,723 missing, 961 empty)
+ * - events: 54.80% (2,649 missing)
+ * - videoUrl: 63.91% (998 missing, 1,117 empty)
+ * - createId: 67.80% (1,887 missing)
+ * - slideMode: 68.93% (1,821 missing)
+ * - updateId: 70.60% (1,723 missing)
+ * - materials: 76.88% (1,355 missing)
+ * - tags: 80.45% (1,146 missing)
+ * - freeComment: 83.65% (31 missing, 927 empty)
+ * - summary: 84.63% (901 missing)
  * - thanksFlg: 96.74% (191 missing)
- * - freeComment: 99.47% (31 missing)
  * - releaseDate: 99.68% (19 missing)
  * - users: 99.95% (3 missing)
  *
