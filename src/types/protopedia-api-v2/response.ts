@@ -96,7 +96,7 @@ export interface ResultOfListPrototypesApiResponse {
   id: number;
 
   /**
-   * **Confidence**: Unknown
+   * **Confidence**: ❔ Unknown
    * **Name**: UUID
    * **Description**: Universal unique identifier. Internal identifier, possibly used by ProtoPedia platform (purpose unknown).
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -109,7 +109,7 @@ export interface ResultOfListPrototypesApiResponse {
   uuid: string;
 
   /**
-   * **Confidence**: Unknown
+   * **Confidence**: ❔ Unknown
    * **Name**: Node ID
    * **Description**: Node identifier. Internal identifier, possibly related to content management system (purpose unknown).
    * **Presence rate**: 32.20% (3,974 missing out of 5,861 prototypes)
@@ -122,7 +122,7 @@ export interface ResultOfListPrototypesApiResponse {
   nid?: string;
 
   /**
-   * **Confidence**: Unknown
+   * **Confidence**: ❔ Unknown
    * **Name**: Creator User ID
    * **Description**: User ID who created this prototype.
    * **Presence rate**: 67.80% (1,887 missing out of 5,861 prototypes)
@@ -135,7 +135,7 @@ export interface ResultOfListPrototypesApiResponse {
   createId?: number;
 
   /**
-   * **Confidence**: Estimated
+   * **Confidence**: 🔵 Estimated
    * **Name**: Creation Date
    * **Description**: Date and time when the prototype was first created. Timezone is JST (Japan Standard Time, UTC+9) without offset notation.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -148,7 +148,7 @@ export interface ResultOfListPrototypesApiResponse {
   createDate: string;
 
   /**
-   * **Confidence**: Unknown
+   * **Confidence**: ❔ Unknown
    * **Name**: Updater User ID
    * **Description**: User ID who last updated this prototype.
    * **Presence rate**: 70.60% (1,723 missing out of 5,861 prototypes)
@@ -161,7 +161,7 @@ export interface ResultOfListPrototypesApiResponse {
   updateId?: number;
 
   /**
-   * **Confidence**: Estimated
+   * **Confidence**: 🔵 Estimated
    * **Name**: Last Update Date
    * **Description**: Date and time when the prototype was last modified. Timezone is JST (Japan Standard Time, UTC+9) without offset notation.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -174,7 +174,7 @@ export interface ResultOfListPrototypesApiResponse {
   updateDate: string;
 
   /**
-   * **Confidence**: Estimated
+   * **Confidence**: 🔵 Estimated
    * **Name**: Release Date
    * **Description**: Date and time when the prototype was published. Timezone is JST (Japan Standard Time, UTC+9) without offset notation.
    * **Presence rate**: 99.68% (19 missing out of 5,861 prototypes)
@@ -187,7 +187,7 @@ export interface ResultOfListPrototypesApiResponse {
   releaseDate?: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Summary
    * **Description**: Brief summary/description of the prototype. Concise description or tagline that summarizes the prototype's purpose or appeal.
    * **Presence rate**: 84.63% (901 missing out of 5,861 prototypes)
@@ -202,7 +202,7 @@ export interface ResultOfListPrototypesApiResponse {
   summary?: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Tags
    * **Description**: Pipe-separated tag names. Programming technologies or keywords representing the prototype.
    * **Presence rate**: 80.45% (1,146 missing out of 5,861 prototypes)
@@ -217,7 +217,7 @@ export interface ResultOfListPrototypesApiResponse {
   tags?: string;
 
   /**
-   * **Confidence**: Estimated
+   * **Confidence**: ✅ Confirmed
    * **Name**: Team Name
    * **Description**: Name of the team that created this prototype.
    * **Presence rate**: 33.82% (541 missing, 3,338 empty out of 5,861 prototypes)
@@ -226,11 +226,12 @@ export interface ResultOfListPrototypesApiResponse {
    * ```typescript
    * teamNm: "Pizayanz"
    * ```
+   * **Edit screen**: チーム名
    */
   teamNm?: string;
 
   /**
-   * **Confidence**: Estimated
+   * **Confidence**: ✅ Confirmed
    * **Name**: Users
    * **Description**: Pipe-separated user names. Names of users involved in creating this prototype.
    * **Presence rate**: 99.95% (3 missing out of 5,861 prototypes)
@@ -239,11 +240,13 @@ export interface ResultOfListPrototypesApiResponse {
    * ```typescript
    * users: "ひさやん@hisayan"
    * ```
+   *
+   * **Edit screen**: メンバー
    */
   users?: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Development Status
    * **Description**: Development status code. Indicates the development stage of the prototype.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -264,7 +267,7 @@ export interface ResultOfListPrototypesApiResponse {
   status: number;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Release Flag
    * **Description**: Publication status of the prototype. Public API only returns publicly released prototypes.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -282,7 +285,7 @@ export interface ResultOfListPrototypesApiResponse {
   releaseFlg: number;
 
   /**
-   * **Confidence**: Unknown
+   * **Confidence**: ❔ Unknown
    * **Name**: Revision Number
    * **Description**: Purpose unclear. All prototypes have value `0` (100% of 5,861 prototypes).
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -295,7 +298,7 @@ export interface ResultOfListPrototypesApiResponse {
   revision: number;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Prototype Name
    * **Description**: The main title of the prototype.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -310,7 +313,7 @@ export interface ResultOfListPrototypesApiResponse {
   prototypeNm: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Story / Free Comment
    * **Description**: Free-form story/description text. Detailed description about the prototype including features, technical highlights, and team messages. Contains HTML (Markdown is converted to HTML).
    * **Presence rate**: 83.65% (31 missing, 927 empty out of 5,861 prototypes)
@@ -325,7 +328,7 @@ export interface ResultOfListPrototypesApiResponse {
   freeComment?: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: System Description
    * **Description**: Technical system description. Explanation of technical architecture or how the prototype was built. Contains HTML (Markdown is converted to HTML).
    * **Presence rate**: 54.21% (1,723 missing, 961 empty out of 5,861 prototypes)
@@ -340,7 +343,7 @@ export interface ResultOfListPrototypesApiResponse {
   systemDescription?: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Video URL
    * **Description**: YouTube or Vimeo URL showcasing the prototype.
    * **Presence rate**: 63.91% (998 missing, 1,117 empty out of 5,861 prototypes)
@@ -355,7 +358,7 @@ export interface ResultOfListPrototypesApiResponse {
   videoUrl?: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Main Image URL
    * **Description**: URL of the eyecatch/thumbnail image, typically hosted on ProtoPedia's CDN.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -365,12 +368,12 @@ export interface ResultOfListPrototypesApiResponse {
    * mainUrl: "https://protopedia.net/pic/a1cfe820-a8cc-40b5-9242-9fd0c4738743.png"
    * ```
    *
-   * **Edit screen**: 画像 / アイキャッチ画像 - Up to 5 images can be registered; the 1st image becomes the main image.
+   * **Edit screen**: アイキャッチ画像
    */
   mainUrl: string;
 
   /**
-   * **Confidence**: Estimated
+   * **Confidence**: ✅ Confirmed
    * **Name**: Awards
    * **Description**: Pipe-separated award names. Awards or recognitions received by this prototype.
    * **Presence rate**: 10.68% (5,235 missing out of 5,861 prototypes)
@@ -383,7 +386,7 @@ export interface ResultOfListPrototypesApiResponse {
   awards?: string;
 
   /**
-   * **Confidence**: Estimated
+   * **Confidence**: ✅ Confirmed
    * **Name**: View Count
    * **Description**: Number of times this prototype has been viewed.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -396,7 +399,7 @@ export interface ResultOfListPrototypesApiResponse {
   viewCount: number;
 
   /**
-   * **Confidence**: Estimated
+   * **Confidence**: ✅ Confirmed
    * **Name**: Good Count
    * **Description**: Number of "good" (likes) received.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -409,7 +412,7 @@ export interface ResultOfListPrototypesApiResponse {
   goodCount: number;
 
   /**
-   * **Confidence**: Estimated
+   * **Confidence**: ✅ Confirmed
    * **Name**: Comment Count
    * **Description**: Number of comments received on this prototype.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -422,7 +425,7 @@ export interface ResultOfListPrototypesApiResponse {
   commentCount: number;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Related Link 1
    * **Description**: First related link URL. Related resources such as GitHub repository, blog posts, or documentation.
    * **Presence rate**: 28.82% (1,723 missing, 2,449 empty out of 5,861 prototypes)
@@ -432,12 +435,12 @@ export interface ResultOfListPrototypesApiResponse {
    * relatedLink: "https://github.com/F88/mugen-protopedia"
    * ```
    *
-   * **Edit screen**: 関連リンク - この作品に関係の深いページ(技術ブログ、イベントブログ、受賞記事、関連作品など)あれば入力ください。
+   * **Edit screen**: 関連リンク1 - この作品に関係の深いページ(技術ブログ、イベントブログ、受賞記事、関連作品など)あれば入力ください。
    */
   relatedLink?: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Related Link 2
    * **Description**: Second related link URL.
    * **Presence rate**: 15.24% (2,038 missing, 2,930 empty out of 5,861 prototypes)
@@ -448,11 +451,13 @@ export interface ResultOfListPrototypesApiResponse {
    * ```typescript
    * relatedLink2: "https://protopedia.net/"
    * ```
+   *
+   * **Edit screen**: 関連リンク2
    */
   relatedLink2?: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Related Link 3
    * **Description**: Third related link URL.
    * **Presence rate**: 8.07% (2,038 missing, 3,350 empty out of 5,861 prototypes)
@@ -463,11 +468,13 @@ export interface ResultOfListPrototypesApiResponse {
    * ```typescript
    * relatedLink3: "https://protopediav2.docs.apiary.io/"
    * ```
+   *
+   * **Edit screen**: 関連リンク3
    */
   relatedLink3?: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Related Link 4
    * **Description**: Fourth related link URL.
    * **Presence rate**: 3.98% (2,038 missing, 3,590 empty out of 5,861 prototypes)
@@ -478,21 +485,25 @@ export interface ResultOfListPrototypesApiResponse {
    * ```typescript
    * relatedLink4: "https://protopedia.net/prototype/7627"
    * ```
+   *
+   * **Edit screen**: 関連リンク4
    */
   relatedLink4?: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Related Link 5
    * **Description**: Fifth related link URL.
    * **Presence rate**: 1.93% (2,038 missing, 3,710 empty out of 5,861 prototypes)
    *
    * @see {@link relatedLink} for details
+   *
+   * **Edit screen**: 関連リンク5
    */
   relatedLink5?: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: License Type
    * **Description**: License type code. Creative Commons license display preference.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -511,7 +522,7 @@ export interface ResultOfListPrototypesApiResponse {
   licenseType: number;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Thanks Flag
    * **Description**: Controls the "Thank you for posting" message display.
    * **Presence rate**: 96.74% (191 missing out of 5,861 prototypes)
@@ -528,7 +539,7 @@ export interface ResultOfListPrototypesApiResponse {
   thanksFlg?: number;
 
   /**
-   * **Confidence**: Estimated
+   * **Confidence**: ✅ Confirmed
    * **Name**: Events
    * **Description**: Pipe-separated event names. Events this prototype participated in or was featured in, format: `"EventName@eventId"`.
    * **Presence rate**: 54.80% (2,649 missing out of 5,861 prototypes)
@@ -541,7 +552,7 @@ export interface ResultOfListPrototypesApiResponse {
   events?: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Official Link
    * **Description**: Official project URL. Main URL where the prototype can be accessed or used.
    * **Presence rate**: 49.84% (1,016 missing, 1,924 empty out of 5,861 prototypes)
@@ -556,7 +567,7 @@ export interface ResultOfListPrototypesApiResponse {
   officialLink?: string;
 
   /**
-   * **Confidence**: Confirmed
+   * **Confidence**: ✅ Confirmed
    * **Name**: Materials
    * **Description**: Pipe-separated material/tool names. Development materials, tools, libraries, APIs, and platforms used to build the prototype.
    * **Presence rate**: 76.88% (1,355 missing out of 5,861 prototypes)
@@ -571,23 +582,21 @@ export interface ResultOfListPrototypesApiResponse {
   materials?: string;
 
   /**
-   * **Confidence**: Unknown
-   *
-   * Slide mode flag.
-   *
-   * Internal display mode flag used by ProtoPedia platform.
-   *
+   * **Confidence**: 🔵 Estimated
+   * **Name**: Slide Mode
+   * **Description**: Internal display mode flag used by ProtoPedia platform.
    * **Presence rate**: 68.93% (1,821 missing out of 5,861 prototypes)
+   *
+   * @example
+   * ```typescript
+   * slideMode: 1
+   * ```
    *
    * **Value distribution**:
    * - `1`: 3,083 prototypes (52.6%) - Most common
    * - `0`: 957 prototypes (16.3%)
    * - `null`: 1,821 prototypes (31.1%) - Missing
    *
-   * @example
-   * ```typescript
-   * slideMode: 1
-   * ```
    */
   slideMode?: number;
 }
