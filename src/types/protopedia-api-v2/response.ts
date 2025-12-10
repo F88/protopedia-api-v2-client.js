@@ -84,11 +84,8 @@ export interface ListPrototypesApiResponse {
 export interface ResultOfListPrototypesApiResponse {
   /**
    * **Confidence**: Estimated
-   *
-   * Unique prototype ID.
-   *
-   * This ID corresponds to the numeric identifier in the ProtoPedia URL.
-   *
+   * **Name**: Prototype ID
+   * **Description**: Unique prototype ID. This ID corresponds to the numeric identifier in the ProtoPedia URL.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -100,11 +97,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Unknown
-   *
-   * Universal unique identifier.
-   *
-   * Internal identifier, possibly used by ProtoPedia platform (purpose unknown).
-   *
+   * **Name**: UUID
+   * **Description**: Universal unique identifier. Internal identifier, possibly used by ProtoPedia platform (purpose unknown).
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -116,11 +110,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Unknown
-   *
-   * Node identifier.
-   *
-   * Internal identifier, possibly related to content management system (purpose unknown).
-   *
+   * **Name**: Node ID
+   * **Description**: Node identifier. Internal identifier, possibly related to content management system (purpose unknown).
    * **Presence rate**: 32.20% (3,974 missing out of 5,861 prototypes)
    *
    * @example
@@ -132,9 +123,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Unknown
-   *
-   * User ID who created this prototype.
-   *
+   * **Name**: Creator User ID
+   * **Description**: User ID who created this prototype.
    * **Presence rate**: 67.80% (1,887 missing out of 5,861 prototypes)
    *
    * @example
@@ -146,12 +136,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Estimated
-   *
-   * Creation date.
-   *
-   * Date and time when the prototype was first created.
-   * Timezone is JST (Japan Standard Time, UTC+9) without offset notation.
-   *
+   * **Name**: Creation Date
+   * **Description**: Date and time when the prototype was first created. Timezone is JST (Japan Standard Time, UTC+9) without offset notation.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -163,9 +149,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Unknown
-   *
-   * User ID who last updated this prototype.
-   *
+   * **Name**: Updater User ID
+   * **Description**: User ID who last updated this prototype.
    * **Presence rate**: 70.60% (1,723 missing out of 5,861 prototypes)
    *
    * @example
@@ -177,12 +162,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Estimated
-   *
-   * Last update date.
-   *
-   * Date and time when the prototype was last modified.
-   * Timezone is JST (Japan Standard Time, UTC+9) without offset notation.
-   *
+   * **Name**: Last Update Date
+   * **Description**: Date and time when the prototype was last modified. Timezone is JST (Japan Standard Time, UTC+9) without offset notation.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -194,12 +175,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Estimated
-   *
-   * Release date.
-   *
-   * Date and time when the prototype was published.
-   * Timezone is JST (Japan Standard Time, UTC+9) without offset notation.
-   *
+   * **Name**: Release Date
+   * **Description**: Date and time when the prototype was published. Timezone is JST (Japan Standard Time, UTC+9) without offset notation.
    * **Presence rate**: 99.68% (19 missing out of 5,861 prototypes)
    *
    * @example
@@ -211,11 +188,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Brief summary/description of the prototype.
-   *
-   * Concise description or tagline that summarizes the prototype's purpose or appeal.
-   *
+   * **Name**: Summary
+   * **Description**: Brief summary/description of the prototype. Concise description or tagline that summarizes the prototype's purpose or appeal.
    * **Presence rate**: 84.63% (901 missing out of 5,861 prototypes)
    *
    * @example
@@ -229,11 +203,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Pipe-separated tag names.
-   *
-   * Programming technologies or keywords representing the prototype.
-   *
+   * **Name**: Tags
+   * **Description**: Pipe-separated tag names. Programming technologies or keywords representing the prototype.
    * **Presence rate**: 80.45% (1,146 missing out of 5,861 prototypes)
    *
    * @example
@@ -247,11 +218,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Estimated
-   *
-   * Team name.
-   *
-   * Name of the team that created this prototype.
-   *
+   * **Name**: Team Name
+   * **Description**: Name of the team that created this prototype.
    * **Presence rate**: 33.82% (541 missing, 3,338 empty out of 5,861 prototypes)
    *
    * @example
@@ -263,11 +231,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Estimated
-   *
-   * Pipe-separated user names.
-   *
-   * Names of users involved in creating this prototype.
-   *
+   * **Name**: Users
+   * **Description**: Pipe-separated user names. Names of users involved in creating this prototype.
    * **Presence rate**: 99.95% (3 missing out of 5,861 prototypes)
    *
    * @example
@@ -279,11 +244,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Development status code.
-   *
-   * Indicates the development stage of the prototype.
-   *
+   * **Name**: Development Status
+   * **Description**: Development status code. Indicates the development stage of the prototype.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -303,11 +265,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Release flag.
-   *
-   * Publication status of the prototype. Public API only returns publicly released prototypes.
-   *
+   * **Name**: Release Flag
+   * **Description**: Publication status of the prototype. Public API only returns publicly released prototypes.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -324,11 +283,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Unknown
-   *
-   * Revision number.
-   *
-   * Purpose unclear. All prototypes have value `0` (100% of 5,861 prototypes).
-   *
+   * **Name**: Revision Number
+   * **Description**: Purpose unclear. All prototypes have value `0` (100% of 5,861 prototypes).
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -340,11 +296,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Prototype name/title.
-   *
-   * The main title of the prototype.
-   *
+   * **Name**: Prototype Name
+   * **Description**: The main title of the prototype.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -358,12 +311,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Free-form story/description text.
-   *
-   * Detailed description about the prototype including features, technical highlights, and team messages.
-   * Contains HTML (Markdown is converted to HTML).
-   *
+   * **Name**: Story / Free Comment
+   * **Description**: Free-form story/description text. Detailed description about the prototype including features, technical highlights, and team messages. Contains HTML (Markdown is converted to HTML).
    * **Presence rate**: 83.65% (31 missing, 927 empty out of 5,861 prototypes)
    *
    * @example
@@ -377,12 +326,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Technical system description.
-   *
-   * Explanation of technical architecture or how the prototype was built.
-   * Contains HTML (Markdown is converted to HTML).
-   *
+   * **Name**: System Description
+   * **Description**: Technical system description. Explanation of technical architecture or how the prototype was built. Contains HTML (Markdown is converted to HTML).
    * **Presence rate**: 54.21% (1,723 missing, 961 empty out of 5,861 prototypes)
    *
    * @example
@@ -396,11 +341,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Video URL.
-   *
-   * YouTube or Vimeo URL showcasing the prototype.
-   *
+   * **Name**: Video URL
+   * **Description**: YouTube or Vimeo URL showcasing the prototype.
    * **Presence rate**: 63.91% (998 missing, 1,117 empty out of 5,861 prototypes)
    *
    * @example
@@ -414,11 +356,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Main image URL.
-   *
-   * URL of the eyecatch/thumbnail image, typically hosted on ProtoPedia's CDN.
-   *
+   * **Name**: Main Image URL
+   * **Description**: URL of the eyecatch/thumbnail image, typically hosted on ProtoPedia's CDN.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -432,11 +371,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Estimated
-   *
-   * Pipe-separated award names.
-   *
-   * Awards or recognitions received by this prototype.
-   *
+   * **Name**: Awards
+   * **Description**: Pipe-separated award names. Awards or recognitions received by this prototype.
    * **Presence rate**: 10.68% (5,235 missing out of 5,861 prototypes)
    *
    * @example
@@ -448,11 +384,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Estimated
-   *
-   * View count.
-   *
-   * Number of times this prototype has been viewed.
-   *
+   * **Name**: View Count
+   * **Description**: Number of times this prototype has been viewed.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -464,11 +397,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Estimated
-   *
-   * Good count.
-   *
-   * Number of "good" (likes) received.
-   *
+   * **Name**: Good Count
+   * **Description**: Number of "good" (likes) received.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -480,11 +410,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Estimated
-   *
-   * Comment count.
-   *
-   * Number of comments received on this prototype.
-   *
+   * **Name**: Comment Count
+   * **Description**: Number of comments received on this prototype.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -496,11 +423,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * First related link URL.
-   *
-   * Related resources such as GitHub repository, blog posts, or documentation.
-   *
+   * **Name**: Related Link 1
+   * **Description**: First related link URL. Related resources such as GitHub repository, blog posts, or documentation.
    * **Presence rate**: 28.82% (1,723 missing, 2,449 empty out of 5,861 prototypes)
    *
    * @example
@@ -514,12 +438,11 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Second related link URL.
+   * **Name**: Related Link 2
+   * **Description**: Second related link URL.
+   * **Presence rate**: 15.24% (2,038 missing, 2,930 empty out of 5,861 prototypes)
    *
    * @see {@link relatedLink} for details
-   *
-   * **Presence rate**: 15.24% (2,038 missing, 2,930 empty out of 5,861 prototypes)
    *
    * @example
    * ```typescript
@@ -530,12 +453,11 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Third related link URL.
+   * **Name**: Related Link 3
+   * **Description**: Third related link URL.
+   * **Presence rate**: 8.07% (2,038 missing, 3,350 empty out of 5,861 prototypes)
    *
    * @see {@link relatedLink} for details
-   *
-   * **Presence rate**: 8.07% (2,038 missing, 3,350 empty out of 5,861 prototypes)
    *
    * @example
    * ```typescript
@@ -546,12 +468,11 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Fourth related link URL.
+   * **Name**: Related Link 4
+   * **Description**: Fourth related link URL.
+   * **Presence rate**: 3.98% (2,038 missing, 3,590 empty out of 5,861 prototypes)
    *
    * @see {@link relatedLink} for details
-   *
-   * **Presence rate**: 3.98% (2,038 missing, 3,590 empty out of 5,861 prototypes)
    *
    * @example
    * ```typescript
@@ -562,22 +483,18 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Fifth related link URL.
+   * **Name**: Related Link 5
+   * **Description**: Fifth related link URL.
+   * **Presence rate**: 1.93% (2,038 missing, 3,710 empty out of 5,861 prototypes)
    *
    * @see {@link relatedLink} for details
-   *
-   * **Presence rate**: 1.93% (2,038 missing, 3,710 empty out of 5,861 prototypes)
    */
   relatedLink5?: string;
 
   /**
    * **Confidence**: Confirmed
-   *
-   * License type code.
-   *
-   * Creative Commons license display preference.
-   *
+   * **Name**: License Type
+   * **Description**: License type code. Creative Commons license display preference.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -595,11 +512,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Thanks flag.
-   *
-   * Controls the "Thank you for posting" message display.
-   *
+   * **Name**: Thanks Flag
+   * **Description**: Controls the "Thank you for posting" message display.
    * **Presence rate**: 96.74% (191 missing out of 5,861 prototypes)
    *
    * @example
@@ -615,11 +529,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Estimated
-   *
-   * Pipe-separated event names.
-   *
-   * Events this prototype participated in or was featured in, format: `"EventName@eventId"`.
-   *
+   * **Name**: Events
+   * **Description**: Pipe-separated event names. Events this prototype participated in or was featured in, format: `"EventName@eventId"`.
    * **Presence rate**: 54.80% (2,649 missing out of 5,861 prototypes)
    *
    * @example
@@ -631,11 +542,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Official project URL.
-   *
-   * Main URL where the prototype can be accessed or used.
-   *
+   * **Name**: Official Link
+   * **Description**: Official project URL. Main URL where the prototype can be accessed or used.
    * **Presence rate**: 49.84% (1,016 missing, 1,924 empty out of 5,861 prototypes)
    *
    * @example
@@ -649,11 +557,8 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: Confirmed
-   *
-   * Pipe-separated material/tool names.
-   *
-   * Development materials, tools, libraries, APIs, and platforms used to build the prototype.
-   *
+   * **Name**: Materials
+   * **Description**: Pipe-separated material/tool names. Development materials, tools, libraries, APIs, and platforms used to build the prototype.
    * **Presence rate**: 76.88% (1,355 missing out of 5,861 prototypes)
    *
    * @example
