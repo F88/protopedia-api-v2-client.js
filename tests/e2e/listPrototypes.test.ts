@@ -261,7 +261,7 @@ function assertResultOfListPrototypesApiResponse(data: unknown) {
   expect(obj).toHaveProperty('createDate');
   // expect(obj).toHaveProperty('updateId');
   expect(obj).toHaveProperty('updateDate');
-  expect(obj).toHaveProperty('releaseDate');
+  // expect(obj).toHaveProperty('releaseDate');
 
   // expect(obj).toHaveProperty('nid');
   expect(obj).toHaveProperty('uuid');
@@ -269,15 +269,15 @@ function assertResultOfListPrototypesApiResponse(data: unknown) {
   // expect(obj).toHaveProperty('summary');
   // expect(obj).toHaveProperty('tags');
 
-  expect(obj).toHaveProperty('teamNm');
-  expect(obj).toHaveProperty('users');
+  // expect(obj).toHaveProperty('teamNm');
+  // expect(obj).toHaveProperty('users');
 
   expect(obj).toHaveProperty('status');
   expect(obj).toHaveProperty('releaseFlg');
 
   expect(obj).toHaveProperty('revision');
   expect(obj).toHaveProperty('prototypeNm');
-  expect(obj).toHaveProperty('freeComment');
+  // expect(obj).toHaveProperty('freeComment');
   // expect(obj).toHaveProperty('systemDescription');
   // expect(obj).toHaveProperty('videoUrl');
 
@@ -297,7 +297,7 @@ function assertResultOfListPrototypesApiResponse(data: unknown) {
 
   expect(obj).toHaveProperty('licenseType');
 
-  expect(obj).toHaveProperty('thanksFlg');
+  // expect(obj).toHaveProperty('thanksFlg');
 
   // expect(obj).toHaveProperty('events');
   // expect(obj).toHaveProperty('officialLink');

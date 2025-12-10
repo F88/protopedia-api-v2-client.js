@@ -41,14 +41,14 @@ export interface ResultOfListPrototypesApiResponse {
   createDate: string;
   updateId?: number;
   updateDate: string;
-  releaseDate: string;
+  releaseDate?: string;
 
   summary?: string;
   tags?: string;
 
   // team
-  teamNm: string;
-  users: string;
+  teamNm?: string;
+  users?: string;
 
   status: number;
   releaseFlg: number;
@@ -56,7 +56,7 @@ export interface ResultOfListPrototypesApiResponse {
   // prototype
   revision: number;
   prototypeNm: string;
-  freeComment: string;
+  freeComment?: string;
   systemDescription?: string;
   videoUrl?: string;
 
@@ -81,7 +81,7 @@ export interface ResultOfListPrototypesApiResponse {
   licenseType: number;
 
   // thanksFlg
-  thanksFlg: number;
+  thanksFlg?: number;
 
   // event
   events?: string;
