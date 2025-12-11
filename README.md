@@ -117,6 +117,13 @@ const tsv = await client.downloadPrototypesTsv(
 console.log(tsv);
 ```
 
+## Examples
+
+For a comprehensive implementation example using this client, see:
+
+- [F88/promidas: Snapshot\-based in\-memory store for ProtoPedia prototypes with TTL management](https://github.com/F88/promidas)
+    - [promidas/lib/fetcher](https://github.com/F88/promidas/tree/main/lib/fetcher) - Full-featured integration example
+
 ## API Surface
 
 - Client and factories:
