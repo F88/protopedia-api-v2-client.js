@@ -80,7 +80,7 @@ export interface ResultOfListPrototypesApiResponse {
    * uuid: "2a84d7e4-5fe0-418f-b6ec-2ec6574ec56f"
    * ```
    */
-  uuid: string;
+  uuid?: string;
 
   /**
    * **Confidence**: ❔ Unknown
@@ -262,7 +262,7 @@ export interface ResultOfListPrototypesApiResponse {
    * - `2`: '一般公開' (Public) - Publicly accessible (100% in API)
    * - `3`: '限定共有' (Limited Sharing) - Not accessible via API
    */
-  releaseFlg: number;
+  releaseFlg?: number;
 
   /**
    * **Confidence**: ❔ Unknown
@@ -275,7 +275,7 @@ export interface ResultOfListPrototypesApiResponse {
    * revision: 0
    * ```
    */
-  revision: number;
+  revision?: number;
 
   /**
    * **Confidence**: ✅ Confirmed
@@ -506,7 +506,7 @@ export interface ResultOfListPrototypesApiResponse {
    *
    * **Edit screen**: ライセンスの設定 - 表示する / 表示しない (※2022/5/23からライセンス表記が義務化されました。)
    */
-  licenseType: number;
+  licenseType?: number;
 
   /**
    * **Confidence**: ✅ Confirmed
