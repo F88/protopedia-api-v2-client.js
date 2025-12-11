@@ -73,9 +73,9 @@ export interface ListPrototypesApiResponse {
  *
  * **Confidence Level System**:
  * Each field includes a **Confidence** indicator showing documentation reliability:
- * - **Confirmed**: Documented in official API docs or verified through Edit screen information
- * - **Estimated**: Inferred from data patterns, field names, or Edit screen behavior
- * - **Unknown**: Purpose or exact meaning unclear from available sources
+ * - **✅ Confirmed** (25 fields): Documented in official API docs or verified through Edit screen information
+ * - **🔵 Estimated** (5 fields): Inferred from data patterns, field names, or Edit screen behavior
+ * - **❔ Unknown** (5 fields): Purpose or exact meaning unclear from available sources
  *
  * Note: ProtoPedia API v2 documentation only defines 4 fields explicitly
  * (licenseType, status, releaseFlg, thanksFlg). Most field descriptions are estimated
