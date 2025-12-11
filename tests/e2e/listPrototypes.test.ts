@@ -247,57 +247,145 @@ describe('listPrototypes', () => {
  * レスポンスの変更を検知することが主な目的である。
  */
 function assertResultOfListPrototypesApiResponse(data: unknown) {
-  // ListPrototypesApiResponse.results の data が ResultOfListPrototypesApiResponse 全てのプロパティを持つことを確認する。
-  // 全てのプロパティはoptionalではなくである前提で検査する。
+  // ListPrototypesApiResponse.results の data について、必須プロパティは常に検査し、オプショナルプロパティは存在する場合のみ型検査を行う。
+  // Required fields are always checked, optional fields are conditionally type-checked when present.
 
   expect(data).toBeDefined();
   expect(data).toBeInstanceOf(Object);
-  // if (data && typeof data === 'object') {
   const obj = data as Record<string, unknown>;
 
-  // 必ず含まれるプロパティ
+  // Required fields
   expect(obj).toHaveProperty('id');
-  // expect(obj).toHaveProperty('createId');
+  expect(typeof obj.id).toBe('number');
+
   expect(obj).toHaveProperty('createDate');
-  // expect(obj).toHaveProperty('updateId');
+  expect(typeof obj.createDate).toBe('string');
+
   expect(obj).toHaveProperty('updateDate');
-  expect(obj).toHaveProperty('releaseDate');
-
-  // expect(obj).toHaveProperty('nid');
-  expect(obj).toHaveProperty('uuid');
-
-  // expect(obj).toHaveProperty('summary');
-  // expect(obj).toHaveProperty('tags');
-
-  expect(obj).toHaveProperty('teamNm');
-  expect(obj).toHaveProperty('users');
+  expect(typeof obj.updateDate).toBe('string');
 
   expect(obj).toHaveProperty('status');
-  expect(obj).toHaveProperty('releaseFlg');
+  expect(typeof obj.status).toBe('number');
 
-  expect(obj).toHaveProperty('revision');
   expect(obj).toHaveProperty('prototypeNm');
-  expect(obj).toHaveProperty('freeComment');
-  // expect(obj).toHaveProperty('systemDescription');
-  // expect(obj).toHaveProperty('videoUrl');
+  expect(typeof obj.prototypeNm).toBe('string');
 
   expect(obj).toHaveProperty('mainUrl');
-
-  // expect(obj).toHaveProperty('awards');
+  expect(typeof obj.mainUrl).toBe('string');
 
   expect(obj).toHaveProperty('viewCount');
+  expect(typeof obj.viewCount).toBe('number');
+
   expect(obj).toHaveProperty('commentCount');
+  expect(typeof obj.commentCount).toBe('number');
+
   expect(obj).toHaveProperty('goodCount');
+  expect(typeof obj.goodCount).toBe('number');
 
-  // expect(obj).toHaveProperty('relatedLink');
-  // expect(obj).toHaveProperty('relatedLink2');
-  // expect(obj).toHaveProperty('relatedLink3');
-  // expect(obj).toHaveProperty('relatedLink4');
-  // expect(obj).toHaveProperty('relatedLink5');
+  // Optional fields - check type when present
+  if ('createId' in obj) {
+    expect(typeof obj.createId).toBe('number');
+  }
 
-  expect(obj).toHaveProperty('licenseType');
+  if ('updateId' in obj) {
+    expect(typeof obj.updateId).toBe('number');
+  }
 
-  expect(obj).toHaveProperty('thanksFlg');
+  if ('releaseDate' in obj) {
+    expect(typeof obj.releaseDate).toBe('string');
+  }
+
+  if ('nid' in obj) {
+    expect(typeof obj.nid).toBe('string');
+  }
+
+  if ('uuid' in obj) {
+    expect(typeof obj.uuid).toBe('string');
+  }
+
+  if ('summary' in obj) {
+    expect(typeof obj.summary).toBe('string');
+  }
+
+  if ('tags' in obj) {
+    expect(typeof obj.tags).toBe('string');
+  }
+
+  if ('teamNm' in obj) {
+    expect(typeof obj.teamNm).toBe('string');
+  }
+
+  if ('users' in obj) {
+    expect(typeof obj.users).toBe('string');
+  }
+
+  if ('releaseFlg' in obj) {
+    expect(typeof obj.releaseFlg).toBe('number');
+  }
+
+  if ('revision' in obj) {
+    expect(typeof obj.revision).toBe('number');
+  }
+
+  if ('freeComment' in obj) {
+    expect(typeof obj.freeComment).toBe('string');
+  }
+
+  if ('systemDescription' in obj) {
+    expect(typeof obj.systemDescription).toBe('string');
+  }
+
+  if ('videoUrl' in obj) {
+    expect(typeof obj.videoUrl).toBe('string');
+  }
+
+  if ('awards' in obj) {
+    expect(typeof obj.awards).toBe('string');
+  }
+
+  if ('relatedLink' in obj) {
+    expect(typeof obj.relatedLink).toBe('string');
+  }
+
+  if ('relatedLink2' in obj) {
+    expect(typeof obj.relatedLink2).toBe('string');
+  }
+
+  if ('relatedLink3' in obj) {
+    expect(typeof obj.relatedLink3).toBe('string');
+  }
+
+  if ('relatedLink4' in obj) {
+    expect(typeof obj.relatedLink4).toBe('string');
+  }
+
+  if ('relatedLink5' in obj) {
+    expect(typeof obj.relatedLink5).toBe('string');
+  }
+
+  if ('licenseType' in obj) {
+    expect(typeof obj.licenseType).toBe('number');
+  }
+
+  if ('thanksFlg' in obj) {
+    expect(typeof obj.thanksFlg).toBe('number');
+  }
+
+  if ('events' in obj) {
+    expect(typeof obj.events).toBe('string');
+  }
+
+  if ('officialLink' in obj) {
+    expect(typeof obj.officialLink).toBe('string');
+  }
+
+  if ('materials' in obj) {
+    expect(typeof obj.materials).toBe('string');
+  }
+
+  if ('slideMode' in obj) {
+    expect(typeof obj.slideMode).toBe('number');
+  }
 
   // expect(obj).toHaveProperty('events');
   // expect(obj).toHaveProperty('officialLink');
