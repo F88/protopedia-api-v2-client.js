@@ -247,7 +247,7 @@ describe('listPrototypes', () => {
  * レスポンスの変更を検知することが主な目的である。
  */
 function assertResultOfListPrototypesApiResponse(data: unknown) {
-  // ListPrototypesApiResponse.results の data が ResultOfListPrototypesApiResponse 全てのプロパティを持つことを確認する。
+  // ListPrototypesApiResponse.results の data について、必須プロパティは常に検査し、オプショナルプロパティは存在する場合のみ型検査を行う。
   // Required fields are always checked, optional fields are conditionally type-checked when present.
 
   expect(data).toBeDefined();
