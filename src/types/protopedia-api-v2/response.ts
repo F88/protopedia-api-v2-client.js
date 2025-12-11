@@ -45,36 +45,10 @@ export interface ListPrototypesApiResponse {
  * This is defined based on sampling actual data, not the API specification.
  * It may need to be updated when the API specification changes.
  *
- * Some fields are optional because they are not present in all prototype records.
- * Analysis of 5,861 prototypes (IDs 1-7926) shows varying presence rates.
- * Fields with less than 100% presence (excluding empty strings):
- * - relatedLink5: 1.93% (2,038 missing, 3,710 empty)
- * - relatedLink4: 3.98% (2,038 missing, 3,590 empty)
- * - relatedLink3: 8.07% (2,038 missing, 3,350 empty)
- * - awards: 10.68% (5,235 missing)
- * - relatedLink2: 15.24% (2,038 missing, 2,930 empty)
- * - relatedLink: 28.82% (1,723 missing, 2,449 empty)
- * - nid: 32.20% (3,974 missing)
- * - teamNm: 33.82% (541 missing, 3,338 empty)
- * - officialLink: 49.84% (1,016 missing, 1,924 empty)
- * - systemDescription: 54.21% (1,723 missing, 961 empty)
- * - events: 54.80% (2,649 missing)
- * - videoUrl: 63.91% (998 missing, 1,117 empty)
- * - createId: 67.80% (1,887 missing)
- * - slideMode: 68.93% (1,821 missing)
- * - updateId: 70.60% (1,723 missing)
- * - materials: 76.88% (1,355 missing)
- * - tags: 80.45% (1,146 missing)
- * - freeComment: 83.65% (31 missing, 927 empty)
- * - summary: 84.63% (901 missing)
- * - thanksFlg: 96.74% (191 missing)
- * - releaseDate: 99.68% (19 missing)
- * - users: 99.95% (3 missing)
- *
  * **Confidence Level System**:
  * Each field includes a **Confidence** indicator showing documentation reliability:
- * - **✅ Confirmed** (25 fields): Documented in official API docs or verified through Edit screen information
- * - **🔵 Estimated** (5 fields): Inferred from data patterns, field names, or Edit screen behavior
+ * - **✅ Confirmed** (26 fields): Documented in official API docs or verified through Edit screen information
+ * - **🔵 Estimated** (4 fields): Inferred from data patterns, field names, or Edit screen behavior
  * - **❔ Unknown** (5 fields): Purpose or exact meaning unclear from available sources
  *
  * Note: ProtoPedia API v2 documentation only defines 4 fields explicitly
@@ -83,9 +57,9 @@ export interface ListPrototypesApiResponse {
  */
 export interface ResultOfListPrototypesApiResponse {
   /**
-   * **Confidence**: 🔵 Estimated
+   * **Confidence**: ✅ Confirmed
    * **Name**: Prototype ID
-   * **Description**: Unique prototype ID. This ID corresponds to the numeric identifier in the ProtoPedia URL.
+   * **Description**: Unique prototype ID. This ID corresponds to the numeric identifier in the ProtoPedia URL (e.g., `protopedia.net/prototype/1898`).
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
@@ -139,6 +113,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: Creation Date
    * **Description**: Date and time when the prototype was first created. Timezone is JST (Japan Standard Time, UTC+9) without offset notation.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
+   * **Format**: Fixed 21 characters (`YYYY-MM-DD HH:MM:SS.S`)
    *
    * @example
    * ```typescript
@@ -165,6 +140,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: Last Update Date
    * **Description**: Date and time when the prototype was last modified. Timezone is JST (Japan Standard Time, UTC+9) without offset notation.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
+   * **Format**: Fixed 21 characters (`YYYY-MM-DD HH:MM:SS.S`)
    *
    * @example
    * ```typescript
@@ -178,6 +154,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: Release Date
    * **Description**: Date and time when the prototype was published. Timezone is JST (Japan Standard Time, UTC+9) without offset notation.
    * **Presence rate**: 99.68% (19 missing out of 5,861 prototypes)
+   * **Format**: Fixed 21 characters (`YYYY-MM-DD HH:MM:SS.S`)
    *
    * @example
    * ```typescript
