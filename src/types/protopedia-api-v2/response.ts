@@ -191,6 +191,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: Summary
    * **Description**: Brief summary/description of the prototype. Concise description or tagline that summarizes the prototype's purpose or appeal.
    * **Presence rate**: 84.63% (901 missing out of 5,861 prototypes)
+   * **Length**: Min 1, Max 255, Avg 62 chars (among 4,960 present)
    *
    * @example
    * ```typescript
@@ -302,6 +303,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: Prototype Name
    * **Description**: The main title of the prototype.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
+   * **Length**: Min 1, Max 109, Avg 17 chars
    *
    * @example
    * ```typescript
@@ -317,6 +319,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: Story / Free Comment
    * **Description**: Free-form story/description text. Detailed description about the prototype including features, technical highlights, and team messages. Contains HTML (Markdown is converted to HTML).
    * **Presence rate**: 83.65% (31 missing, 927 empty out of 5,861 prototypes)
+   * **Length**: Min 1, Max 2,334, Avg 660 chars (among 4,903 non-empty)
    *
    * @example
    * ```typescript
@@ -332,6 +335,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: System Description
    * **Description**: Technical system description. Explanation of technical architecture or how the prototype was built. Contains HTML (Markdown is converted to HTML).
    * **Presence rate**: 54.21% (1,723 missing, 961 empty out of 5,861 prototypes)
+   * **Length**: Min 2, Max 2,328, Avg 612 chars (among 3,177 non-empty)
    *
    * @example
    * ```typescript
