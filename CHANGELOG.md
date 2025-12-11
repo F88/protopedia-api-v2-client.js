@@ -1,5 +1,41 @@
 # protopedia-api-v2-client.js
 
+## 3.0.0 - 2025-12-11
+
+### BREAKING CHANGES
+
+- **Type definition improvements for `ResultOfListPrototypesApiResponse`**: 9 fields changed from required to optional based on actual API data analysis (5,861 prototypes)
+    - Fields made optional: `teamNm`, `users`, `freeComment`, `releaseDate`, `thanksFlg`, `uuid`, `revision`, `releaseFlg`, `licenseType`
+    - These changes align type definitions with real API behavior where some fields may be missing or empty
+    - Migration guide:
+
+    ```typescript
+    // Before (TypeScript with strictNullChecks)
+    const teamName = result.teamNm; // string
+    const uuid = result.uuid; // string
+    const license = result.licenseType; // number
+
+    // After (handle potential undefined values)
+    const teamName = result.teamNm ?? ''; // string | undefined
+    const uuid = result.uuid ?? ''; // string | undefined
+    const license = result.licenseType ?? 0; // number | undefined
+
+    // Use optional chaining for method calls
+    const upperTeam = result.teamNm?.toUpperCase() ?? '';
+    ```
+
+### Documentation
+
+- **Comprehensive TSDoc added to all 35 fields** in `ResultOfListPrototypesApiResponse`
+    - Added **Confidence Level System**: ✅ Confirmed (26 fields), 🔵 Estimated (4 fields), ❔ Unknown (5 fields)
+    - Added **Presence rates** with exact counts from 5,861 real prototypes (IDs 1-7926)
+    - Added **Statistics**: String lengths, element counts, value ranges, and date formats
+    - Added **Examples** for all fields with realistic data
+    - Added **Edit screen** labels for confirmed fields
+    - Translated all documentation from Japanese to English
+    - Reorganized fields for better logical grouping
+- Reordered fields in `ResultOfListPrototypesApiResponse` for improved readability (non-breaking)
+
 ## 2.0.0 - 2025-12-08
 
 ### BREAKING CHANGES
