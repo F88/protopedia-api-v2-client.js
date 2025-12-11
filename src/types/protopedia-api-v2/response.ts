@@ -83,7 +83,7 @@ export interface ListPrototypesApiResponse {
  */
 export interface ResultOfListPrototypesApiResponse {
   /**
-   * **Confidence**: Estimated
+   * **Confidence**: 🔵 Estimated
    * **Name**: Prototype ID
    * **Description**: Unique prototype ID. This ID corresponds to the numeric identifier in the ProtoPedia URL.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -207,6 +207,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: Tags
    * **Description**: Pipe-separated tag names. Programming technologies or keywords representing the prototype.
    * **Presence rate**: 80.45% (1,146 missing out of 5,861 prototypes)
+   * **Elements**: Min 1, Max 34, Avg 3 tags per prototype
    *
    * @example
    * ```typescript
@@ -236,6 +237,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: Users
    * **Description**: Pipe-separated user names. Names of users involved in creating this prototype.
    * **Presence rate**: 99.95% (3 missing out of 5,861 prototypes)
+   * **Elements**: Min 1, Max 11, Avg 1 user per prototype
    *
    * @example
    * ```typescript
@@ -381,6 +383,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: Awards
    * **Description**: Pipe-separated award names. Awards or recognitions received by this prototype.
    * **Presence rate**: 10.68% (5,235 missing out of 5,861 prototypes)
+   * **Elements**: Min 1, Max 5, Avg 1 award per prototype
    *
    * @example
    * ```typescript
@@ -394,6 +397,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: View Count
    * **Description**: Number of times this prototype has been viewed.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
+   * **Range**: Min 2, Max 101,995, Avg 666 views
    *
    * @example
    * ```typescript
@@ -407,6 +411,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: Good Count
    * **Description**: Number of "good" (likes) received.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
+   * **Range**: Min 0, Max 436, Avg 3 goods
    *
    * @example
    * ```typescript
@@ -420,6 +425,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: Comment Count
    * **Description**: Number of comments received on this prototype.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
+   * **Range**: Min 0, Max 30, Avg 0 comments
    *
    * @example
    * ```typescript
@@ -547,6 +553,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: Events
    * **Description**: Pipe-separated event names. Events this prototype participated in or was featured in, format: `"EventName@eventId"`.
    * **Presence rate**: 54.80% (2,649 missing out of 5,861 prototypes)
+   * **Elements**: Min 1, Max 11, Avg 1 event per prototype
    *
    * @example
    * ```typescript
@@ -575,6 +582,7 @@ export interface ResultOfListPrototypesApiResponse {
    * **Name**: Materials
    * **Description**: Pipe-separated material/tool names. Development materials, tools, libraries, APIs, and platforms used to build the prototype.
    * **Presence rate**: 76.88% (1,355 missing out of 5,861 prototypes)
+   * **Elements**: Min 1, Max 20, Avg 2 materials per prototype
    *
    * @example
    * ```typescript
