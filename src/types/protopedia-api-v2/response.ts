@@ -70,45 +70,6 @@ export interface ResultOfListPrototypesApiResponse {
   id: number;
 
   /**
-   * **Confidence**: ❔ Unknown
-   * **Name**: UUID
-   * **Description**: Universal unique identifier. Internal identifier, possibly used by ProtoPedia platform (purpose unknown).
-   * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
-   *
-   * @example
-   * ```typescript
-   * uuid: "2a84d7e4-5fe0-418f-b6ec-2ec6574ec56f"
-   * ```
-   */
-  uuid?: string;
-
-  /**
-   * **Confidence**: ❔ Unknown
-   * **Name**: Node ID
-   * **Description**: Node identifier. Internal identifier, possibly related to content management system (purpose unknown).
-   * **Presence rate**: 32.20% (3,974 missing out of 5,861 prototypes)
-   *
-   * @example
-   * ```typescript
-   * nid: "2421fcb1263b9530df88f7f002e78ea5"
-   * ```
-   */
-  nid?: string;
-
-  /**
-   * **Confidence**: ❔ Unknown
-   * **Name**: Creator User ID
-   * **Description**: User ID who created this prototype.
-   * **Presence rate**: 67.80% (1,887 missing out of 5,861 prototypes)
-   *
-   * @example
-   * ```typescript
-   * createId: 123
-   * ```
-   */
-  createId?: number;
-
-  /**
    * **Confidence**: 🔵 Estimated
    * **Name**: Creation Date
    * **Description**: Date and time when the prototype was first created. Timezone is JST (Japan Standard Time, UTC+9) without offset notation.
@@ -121,19 +82,6 @@ export interface ResultOfListPrototypesApiResponse {
    * ```
    */
   createDate: string;
-
-  /**
-   * **Confidence**: ❔ Unknown
-   * **Name**: Updater User ID
-   * **Description**: User ID who last updated this prototype.
-   * **Presence rate**: 70.60% (1,723 missing out of 5,861 prototypes)
-   *
-   * @example
-   * ```typescript
-   * updateId: 456
-   * ```
-   */
-  updateId?: number;
 
   /**
    * **Confidence**: 🔵 Estimated
@@ -164,66 +112,48 @@ export interface ResultOfListPrototypesApiResponse {
   releaseDate?: string;
 
   /**
-   * **Confidence**: ✅ Confirmed
-   * **Name**: Summary
-   * **Description**: Brief summary/description of the prototype. Concise description or tagline that summarizes the prototype's purpose or appeal.
-   * **Presence rate**: 84.63% (901 missing out of 5,861 prototypes)
-   * **Length**: Min 1, Max 255, Avg 62 chars (among 4,960 present)
+   * **Confidence**: ❔ Unknown
+   * **Name**: Creator User ID
+   * **Description**: User ID who created this prototype.
+   * **Presence rate**: 67.80% (1,887 missing out of 5,861 prototypes)
    *
    * @example
    * ```typescript
-   * summary: "仕事中のおさぼりから酒宴のつまみにも、寝酒のお供に、気付けば夜更け、朝ぼらけ。"
+   * createId: 123
    * ```
-   *
-   * **Edit screen**: 概要 (required)
    */
-  summary?: string;
+  createId?: number;
+
+  /**
+   * **Confidence**: ❔ Unknown
+   * **Name**: Updater User ID
+   * **Description**: User ID who last updated this prototype.
+   * **Presence rate**: 70.60% (1,723 missing out of 5,861 prototypes)
+   *
+   * @example
+   * ```typescript
+   * updateId: 456
+   * ```
+   */
+  updateId?: number;
 
   /**
    * **Confidence**: ✅ Confirmed
-   * **Name**: Tags
-   * **Description**: Pipe-separated tag names. Programming technologies or keywords representing the prototype.
-   * **Presence rate**: 80.45% (1,146 missing out of 5,861 prototypes)
-   * **Elements**: Min 1, Max 34, Avg 3 tags per prototype
+   * **Name**: Release Flag
+   * **Description**: Publication status of the prototype. Public API only returns publicly released prototypes.
+   * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
    *
    * @example
    * ```typescript
-   * tags: "GitHub Copilot|MUGEN|Next.js|ProtoPedia API Ver 2.0|Vercel"
+   * releaseFlg: 2
    * ```
    *
-   * **Edit screen**: タグ - プログラミング技術や作品を表すタグ、5個程度つけることでより多くの人に見てもらいやすくなります。
+   * **Possible values**:
+   * - `1`: '下書き保存' (Draft) - Not accessible via API
+   * - `2`: '一般公開' (Public) - Publicly accessible (100% in API)
+   * - `3`: '限定共有' (Limited Sharing) - Not accessible via API
    */
-  tags?: string;
-
-  /**
-   * **Confidence**: ✅ Confirmed
-   * **Name**: Team Name
-   * **Description**: Name of the team that created this prototype.
-   * **Presence rate**: 33.82% (541 missing, 3,338 empty out of 5,861 prototypes)
-   *
-   * @example
-   * ```typescript
-   * teamNm: "Pizayanz"
-   * ```
-   * **Edit screen**: チーム名
-   */
-  teamNm?: string;
-
-  /**
-   * **Confidence**: ✅ Confirmed
-   * **Name**: Users
-   * **Description**: Pipe-separated user names. Names of users involved in creating this prototype.
-   * **Presence rate**: 99.95% (3 missing out of 5,861 prototypes)
-   * **Elements**: Min 1, Max 11, Avg 1 user per prototype
-   *
-   * @example
-   * ```typescript
-   * users: "ひさやん@hisayan"
-   * ```
-   *
-   * **Edit screen**: メンバー
-   */
-  users?: string;
+  releaseFlg?: number;
 
   /**
    * **Confidence**: ✅ Confirmed
@@ -248,37 +178,6 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: ✅ Confirmed
-   * **Name**: Release Flag
-   * **Description**: Publication status of the prototype. Public API only returns publicly released prototypes.
-   * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
-   *
-   * @example
-   * ```typescript
-   * releaseFlg: 2
-   * ```
-   *
-   * **Possible values**:
-   * - `1`: '下書き保存' (Draft) - Not accessible via API
-   * - `2`: '一般公開' (Public) - Publicly accessible (100% in API)
-   * - `3`: '限定共有' (Limited Sharing) - Not accessible via API
-   */
-  releaseFlg?: number;
-
-  /**
-   * **Confidence**: ❔ Unknown
-   * **Name**: Revision Number
-   * **Description**: Purpose unclear. All prototypes have value `0` (100% of 5,861 prototypes).
-   * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
-   *
-   * @example
-   * ```typescript
-   * revision: 0
-   * ```
-   */
-  revision?: number;
-
-  /**
-   * **Confidence**: ✅ Confirmed
    * **Name**: Prototype Name
    * **Description**: The main title of the prototype.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -292,6 +191,22 @@ export interface ResultOfListPrototypesApiResponse {
    * **Edit screen**: 作品タイトル (required)
    */
   prototypeNm: string;
+
+  /**
+   * **Confidence**: ✅ Confirmed
+   * **Name**: Summary
+   * **Description**: Brief summary/description of the prototype. Concise description or tagline that summarizes the prototype's purpose or appeal.
+   * **Presence rate**: 84.63% (901 missing out of 5,861 prototypes)
+   * **Length**: Min 1, Max 255, Avg 62 chars (among 4,960 present)
+   *
+   * @example
+   * ```typescript
+   * summary: "仕事中のおさぼりから酒宴のつまみにも、寝酒のお供に、気付けば夜更け、朝ぼらけ。"
+   * ```
+   *
+   * **Edit screen**: 概要 (required)
+   */
+  summary?: string;
 
   /**
    * **Confidence**: ✅ Confirmed
@@ -327,6 +242,111 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: ✅ Confirmed
+   * **Name**: Tags
+   * **Description**: Pipe-separated tag names. Programming technologies or keywords representing the prototype.
+   * **Presence rate**: 80.45% (1,146 missing out of 5,861 prototypes)
+   * **Elements**: Min 1, Max 34, Avg 3 tags per prototype
+   *
+   * @example
+   * ```typescript
+   * tags: "GitHub Copilot|MUGEN|Next.js|ProtoPedia API Ver 2.0|Vercel"
+   * ```
+   *
+   * **Edit screen**: タグ - プログラミング技術や作品を表すタグ、5個程度つけることでより多くの人に見てもらいやすくなります。
+   */
+  tags?: string;
+
+  /**
+   * **Confidence**: ✅ Confirmed
+   * **Name**: Materials
+   * **Description**: Pipe-separated material/tool names. Development materials, tools, libraries, APIs, and platforms used to build the prototype.
+   * **Presence rate**: 76.88% (1,355 missing out of 5,861 prototypes)
+   * **Elements**: Min 1, Max 20, Avg 2 materials per prototype
+   *
+   * @example
+   * ```typescript
+   * materials: "Next.js|ProtoPedia API Ver 2.0|Vercel"
+   * ```
+   *
+   * **Edit screen**: 開発素材 - 使用するAPI、ツール、デバイスなどを3文字以上入力し、候補から選択ください。
+   */
+  materials?: string;
+
+  /**
+   * **Confidence**: ✅ Confirmed
+   * **Name**: Events
+   * **Description**: Pipe-separated event names. Events this prototype participated in or was featured in, format: `"EventName@eventId"`.
+   * **Presence rate**: 54.80% (2,649 missing out of 5,861 prototypes)
+   * **Elements**: Min 1, Max 11, Avg 1 event per prototype
+   *
+   * @example
+   * ```typescript
+   * events: "ヒーローズ・リーグ 2025@hl2025|ProtoPediaの時間:紹介作品①@protopedia-time50"
+   * ```
+   */
+  events?: string;
+
+  /**
+   * **Confidence**: ✅ Confirmed
+   * **Name**: Awards
+   * **Description**: Pipe-separated award names. Awards or recognitions received by this prototype.
+   * **Presence rate**: 10.68% (5,235 missing out of 5,861 prototypes)
+   * **Elements**: Min 1, Max 5, Avg 1 award per prototype
+   *
+   * @example
+   * ```typescript
+   * awards: "Best Hack Award|Audience Award"
+   * ```
+   */
+  awards?: string;
+
+  /**
+   * **Confidence**: ✅ Confirmed
+   * **Name**: Users
+   * **Description**: Pipe-separated user names. Names of users involved in creating this prototype.
+   * **Presence rate**: 99.95% (3 missing out of 5,861 prototypes)
+   * **Elements**: Min 1, Max 11, Avg 1 user per prototype
+   *
+   * @example
+   * ```typescript
+   * users: "ひさやん@hisayan"
+   * ```
+   *
+   * **Edit screen**: メンバー
+   */
+  users?: string;
+
+  /**
+   * **Confidence**: ✅ Confirmed
+   * **Name**: Team Name
+   * **Description**: Name of the team that created this prototype.
+   * **Presence rate**: 33.82% (541 missing, 3,338 empty out of 5,861 prototypes)
+   *
+   * @example
+   * ```typescript
+   * teamNm: "Pizayanz"
+   * ```
+   * **Edit screen**: チーム名
+   */
+  teamNm?: string;
+
+  /**
+   * **Confidence**: ✅ Confirmed
+   * **Name**: Official Link
+   * **Description**: Official project URL. Main URL where the prototype can be accessed or used.
+   * **Presence rate**: 49.84% (1,016 missing, 1,924 empty out of 5,861 prototypes)
+   *
+   * @example
+   * ```typescript
+   * officialLink: "https://mugen-pp.vercel.app/"
+   * ```
+   *
+   * **Edit screen**: 作品のURL
+   */
+  officialLink?: string;
+
+  /**
+   * **Confidence**: ✅ Confirmed
    * **Name**: Video URL
    * **Description**: YouTube or Vimeo URL showcasing the prototype.
    * **Presence rate**: 63.91% (998 missing, 1,117 empty out of 5,861 prototypes)
@@ -354,62 +374,6 @@ export interface ResultOfListPrototypesApiResponse {
    * **Edit screen**: アイキャッチ画像
    */
   mainUrl: string;
-
-  /**
-   * **Confidence**: ✅ Confirmed
-   * **Name**: Awards
-   * **Description**: Pipe-separated award names. Awards or recognitions received by this prototype.
-   * **Presence rate**: 10.68% (5,235 missing out of 5,861 prototypes)
-   * **Elements**: Min 1, Max 5, Avg 1 award per prototype
-   *
-   * @example
-   * ```typescript
-   * awards: "Best Hack Award|Audience Award"
-   * ```
-   */
-  awards?: string;
-
-  /**
-   * **Confidence**: ✅ Confirmed
-   * **Name**: View Count
-   * **Description**: Number of times this prototype has been viewed.
-   * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
-   * **Range**: Min 2, Max 101,995, Avg 666 views
-   *
-   * @example
-   * ```typescript
-   * viewCount: 353
-   * ```
-   */
-  viewCount: number;
-
-  /**
-   * **Confidence**: ✅ Confirmed
-   * **Name**: Good Count
-   * **Description**: Number of "good" (likes) received.
-   * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
-   * **Range**: Min 0, Max 436, Avg 3 goods
-   *
-   * @example
-   * ```typescript
-   * goodCount: 42
-   * ```
-   */
-  goodCount: number;
-
-  /**
-   * **Confidence**: ✅ Confirmed
-   * **Name**: Comment Count
-   * **Description**: Number of comments received on this prototype.
-   * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
-   * **Range**: Min 0, Max 30, Avg 0 comments
-   *
-   * @example
-   * ```typescript
-   * commentCount: 5
-   * ```
-   */
-  commentCount: number;
 
   /**
    * **Confidence**: ✅ Confirmed
@@ -491,6 +455,87 @@ export interface ResultOfListPrototypesApiResponse {
 
   /**
    * **Confidence**: ✅ Confirmed
+   * **Name**: View Count
+   * **Description**: Number of times this prototype has been viewed.
+   * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
+   * **Range**: Min 2, Max 101,995, Avg 666 views
+   *
+   * @example
+   * ```typescript
+   * viewCount: 353
+   * ```
+   */
+  viewCount: number;
+
+  /**
+   * **Confidence**: ✅ Confirmed
+   * **Name**: Good Count
+   * **Description**: Number of "good" (likes) received.
+   * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
+   * **Range**: Min 0, Max 436, Avg 3 goods
+   *
+   * @example
+   * ```typescript
+   * goodCount: 42
+   * ```
+   */
+  goodCount: number;
+
+  /**
+   * **Confidence**: ✅ Confirmed
+   * **Name**: Comment Count
+   * **Description**: Number of comments received on this prototype.
+   * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
+   * **Range**: Min 0, Max 30, Avg 0 comments
+   *
+   * @example
+   * ```typescript
+   * commentCount: 5
+   * ```
+   */
+  commentCount: number;
+
+  /**
+   * **Confidence**: ❔ Unknown
+   * **Name**: UUID
+   * **Description**: Universal unique identifier. Internal identifier, possibly used by ProtoPedia platform (purpose unknown).
+   * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
+   *
+   * @example
+   * ```typescript
+   * uuid: "2a84d7e4-5fe0-418f-b6ec-2ec6574ec56f"
+   * ```
+   */
+  uuid?: string;
+
+  /**
+   * **Confidence**: ❔ Unknown
+   * **Name**: Node ID
+   * **Description**: Node identifier. Internal identifier, possibly related to content management system (purpose unknown).
+   * **Presence rate**: 32.20% (3,974 missing out of 5,861 prototypes)
+   *
+   * @example
+   * ```typescript
+   * nid: "2421fcb1263b9530df88f7f002e78ea5"
+   * ```
+   */
+  nid?: string;
+
+  /**
+   * **Confidence**: ❔ Unknown
+   * **Name**: Revision Number
+   * **Description**: Purpose unclear. All prototypes have value `0` (100% of 5,861 prototypes).
+   * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
+   *
+   * @example
+   * ```typescript
+   * revision: 0
+   * ```
+   */
+  revision?: number;
+
+  /**
+   * **Confidence**: ✅ Confirmed
    * **Name**: License Type
    * **Description**: License type code. Creative Commons license display preference.
    * **Presence rate**: 100% (0 missing out of 5,861 prototypes)
@@ -524,51 +569,6 @@ export interface ResultOfListPrototypesApiResponse {
    * - `1`: '初回表示済' - Message already displayed
    */
   thanksFlg?: number;
-
-  /**
-   * **Confidence**: ✅ Confirmed
-   * **Name**: Events
-   * **Description**: Pipe-separated event names. Events this prototype participated in or was featured in, format: `"EventName@eventId"`.
-   * **Presence rate**: 54.80% (2,649 missing out of 5,861 prototypes)
-   * **Elements**: Min 1, Max 11, Avg 1 event per prototype
-   *
-   * @example
-   * ```typescript
-   * events: "ヒーローズ・リーグ 2025@hl2025|ProtoPediaの時間:紹介作品①@protopedia-time50"
-   * ```
-   */
-  events?: string;
-
-  /**
-   * **Confidence**: ✅ Confirmed
-   * **Name**: Official Link
-   * **Description**: Official project URL. Main URL where the prototype can be accessed or used.
-   * **Presence rate**: 49.84% (1,016 missing, 1,924 empty out of 5,861 prototypes)
-   *
-   * @example
-   * ```typescript
-   * officialLink: "https://mugen-pp.vercel.app/"
-   * ```
-   *
-   * **Edit screen**: 作品のURL
-   */
-  officialLink?: string;
-
-  /**
-   * **Confidence**: ✅ Confirmed
-   * **Name**: Materials
-   * **Description**: Pipe-separated material/tool names. Development materials, tools, libraries, APIs, and platforms used to build the prototype.
-   * **Presence rate**: 76.88% (1,355 missing out of 5,861 prototypes)
-   * **Elements**: Min 1, Max 20, Avg 2 materials per prototype
-   *
-   * @example
-   * ```typescript
-   * materials: "Next.js|ProtoPedia API Ver 2.0|Vercel"
-   * ```
-   *
-   * **Edit screen**: 開発素材 - 使用するAPI、ツール、デバイスなどを3文字以上入力し、候補から選択ください。
-   */
-  materials?: string;
 
   /**
    * **Confidence**: 🔵 Estimated
