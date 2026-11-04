@@ -290,7 +290,7 @@ function renderReport({
   }
 
   const lines = [];
-  lines.push('# ProtoPedia API v2 survey report', '');
+  lines.push('# ProtoPedia API Ver 2.0 survey report', '');
   lines.push(`- Input: \`${displayPath(inputPath)}\``);
   lines.push(`- Input size: ${fmt(inputBytes)} bytes`);
   lines.push(

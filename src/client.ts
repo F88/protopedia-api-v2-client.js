@@ -66,7 +66,7 @@ export class ProtoPediaApiClient {
   private readonly logLevelValue: number;
 
   /**
-   * Creates a client capable of interacting with the ProtoPedia v2 API.
+   * Creates a client capable of interacting with the ProtoPedia API Ver 2.0.
    *
    * @param options Optional configuration such as authentication, base URL,
    * and logging preferences.
