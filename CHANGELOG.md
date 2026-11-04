@@ -25,6 +25,7 @@
 ### Documentation
 
 - Use the official name "ProtoPedia API Ver 2.0" in README, package description and JSDoc
+- Clarify in README that response types are inferred from observed responses, since ProtoPedia API Ver 2.0 does not publish response schemas
 
 ## 3.0.0 - 2025-12-11
 
