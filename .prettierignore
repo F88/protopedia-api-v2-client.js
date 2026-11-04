@@ -9,3 +9,6 @@ coverage
 
 # Ignore Renovate configuration file
 renovate.json
+
+# Ignore local Claude Code settings
+.claude/
