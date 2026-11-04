@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "description": "TypeScript client for ProtoPedia API v2",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "private": false,
   "type": "module",

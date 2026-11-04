@@ -2,7 +2,15 @@
 
 ## Unreleased
 
+### BREAKING CHANGES
+
+- **Drop Node.js 20 support**: The minimum supported Node.js version is now 22 (`engines.node: ">=22"`)
+    - Node.js 20 reached end-of-life on 2026-04-30
+    - Upgrade your runtime to Node.js 22 or later
+
 ### CI
+
+- Update test matrix to Node.js 22.x, 24.x and 26.x (drop 20.x)
 
 - Adopt GitHub Actions workflow lockfile (`.github/workflows/actions.lock`) to pin all direct and transitive actions to verified commits
 - Add `verify-lockfile` workflow to detect stale or corrupt lockfiles
