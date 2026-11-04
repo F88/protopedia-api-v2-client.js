@@ -11,9 +11,12 @@
 ### CI
 
 - Update test matrix to Node.js 22.x, 24.x and 26.x (drop 20.x)
-
 - Adopt GitHub Actions workflow lockfile (`.github/workflows/actions.lock`) to pin all direct and transitive actions to verified commits
 - Add `verify-lockfile` workflow to detect stale or corrupt lockfiles
+
+### Dependencies
+
+- Update development dependencies: eslint 10, vitest 5 (vite 8), msw 3, dotenv 18, prettier 3.9, typescript-eslint 8.72
 
 ## 3.0.0 - 2025-12-11
 

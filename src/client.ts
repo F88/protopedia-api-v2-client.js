@@ -391,7 +391,7 @@ async function buildError(
   response: Response,
   method: string,
 ): Promise<ProtoPediaApiError> {
-  let body: unknown = null;
+  let body: unknown;
 
   // Prefer JSON when content-type hints JSON; otherwise text. Use clone() to
   // avoid consuming the body twice and causing "Body has already been read".
