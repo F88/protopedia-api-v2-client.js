@@ -2,5 +2,14 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "description": "Keep @types/node aligned with the minimum supported Node.js version (engines.node)",
+      "matchPackageNames": [
+        "@types/node"
+      ],
+      "allowedVersions": "<23"
+    }
   ]
 }
