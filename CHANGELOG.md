@@ -22,6 +22,10 @@
 
 - Add scripts to fetch the raw `GET /prototype/list` response and compare it with the type definitions (`npm run survey:fetch`, `npm run survey:analyze`)
 
+### Documentation
+
+- Use the official name "ProtoPedia API Ver 2.0" in README, package description and JSDoc
+
 ## 3.0.0 - 2025-12-11
 
 ### BREAKING CHANGES
