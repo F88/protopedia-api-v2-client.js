@@ -10,6 +10,23 @@
         "@types/node"
       ],
       "allowedVersions": "<23"
+    },
+    {
+      "description": "Build and publish with the minimum supported Node.js version (engines.node)",
+      "matchDepNames": [
+        "node"
+      ],
+      "matchFileNames": [
+        ".github/workflows/publish-to-npmjs.yml"
+      ],
+      "allowedVersions": "<23"
+    },
+    {
+      "description": "Stay on TypeScript 5.x until moving to 7 is planned (typescript-eslint supports <6.1.0)",
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "allowedVersions": "<6"
     }
   ]
 }
