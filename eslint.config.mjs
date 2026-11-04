@@ -25,6 +25,8 @@ export default defineConfig([
         module: 'readonly',
         require: 'readonly',
         exports: 'readonly',
+        fetch: 'readonly',
+        Buffer: 'readonly',
       },
     },
   },

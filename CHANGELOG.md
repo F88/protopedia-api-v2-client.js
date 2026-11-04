@@ -18,6 +18,10 @@
 
 - Update development dependencies: eslint 10, vitest 5 (vite 8), msw 3, dotenv 18, prettier 3.9, typescript-eslint 8.72
 
+### Development
+
+- Add scripts to fetch the raw `GET /prototype/list` response and compare it with the type definitions (`npm run survey:fetch`, `npm run survey:analyze`)
+
 ## 3.0.0 - 2025-12-11
 
 ### BREAKING CHANGES

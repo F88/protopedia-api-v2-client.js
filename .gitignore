@@ -28,3 +28,6 @@ test-report.junit.xml
 ## Temporary Files
 *.log
 *.tgz
+
+## Raw API responses for surveying the API behavior (large, not committed)
+/api-survey/

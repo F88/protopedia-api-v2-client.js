@@ -39,7 +39,9 @@
     "prepack": "npm run gen:version",
     "prebuild": "npm run gen:version && npm run clean && npm run format && npm run lint:fix && npm run test:codecov",
     "build": "tsc --project tsconfig.build.json",
-    "typecheck": "tsc --project tsconfig.dev.json --noEmit"
+    "typecheck": "tsc --project tsconfig.dev.json --noEmit",
+    "survey:fetch": "node ./scripts/fetch-prototypes.mjs",
+    "survey:analyze": "node ./scripts/survey-prototypes.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
