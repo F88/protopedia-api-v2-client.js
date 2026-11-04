@@ -51,7 +51,7 @@ export interface ListPrototypesApiResponse {
  * - **🔵 Estimated** (4 fields): Inferred from data patterns, field names, or Edit screen behavior
  * - **❔ Unknown** (5 fields): Purpose or exact meaning unclear from available sources
  *
- * Note: ProtoPedia API v2 documentation only defines 4 fields explicitly
+ * Note: ProtoPedia API Ver 2.0 documentation only defines 4 fields explicitly
  * (licenseType, status, releaseFlg, thanksFlg). Most field descriptions are estimated
  * based on Edit screen labels, data analysis, and common API conventions.
  */

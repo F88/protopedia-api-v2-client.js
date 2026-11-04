@@ -12,7 +12,7 @@ ProtoPedia API Ver 2.0 Client for Javascript
 
 ## Description
 
-Type-safe, ESM-first client for the ProtoPedia API v2. Built with TypeScript, tested with Vitest, and ready for Node.js 22+.
+Type-safe, ESM-first client for the ProtoPedia API Ver 2.0. Built with TypeScript, tested with Vitest, and ready for Node.js 22+.
 
 - Node.js 22+ with native `fetch`
 - Fully typed request/response models

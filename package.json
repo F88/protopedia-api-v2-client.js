@@ -1,7 +1,7 @@
 {
   "name": "protopedia-api-v2-client",
   "version": "3.0.0",
-  "description": "TypeScript client for ProtoPedia API v2",
+  "description": "TypeScript client for ProtoPedia API Ver 2.0",
   "engines": {
     "node": ">=22"
   },
