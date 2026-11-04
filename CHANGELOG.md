@@ -108,3 +108,5 @@
 ## 1.0.0 - 2025-10-21
 
 - Initial release of the Protopedia API v2 Client library.
+
+<!-- markdownlint-configure-file { "MD024": { "siblings_only": true } } -->
