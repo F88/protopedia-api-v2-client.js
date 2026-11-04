@@ -15,7 +15,7 @@ ProtoPedia API Ver 2.0 Client for Javascript
 Type-safe, ESM-first client for the ProtoPedia API Ver 2.0. Built with TypeScript, tested with Vitest, and ready for Node.js 22+.
 
 - Node.js 22+ with native `fetch`
-- Fully typed request/response models
+- Fully typed request/response models (response types are inferred from observed responses; see [Notes](#notes))
 - Pluggable logging with level control
 - Abortable requests and configurable timeout
 - Minimal, dependency-light
@@ -174,6 +174,7 @@ Types are emitted to `lib/types`. Public type exports are available via the pack
 ## Notes
 
 - This client mirrors the current public API behavior and may need updates if the API changes.
+- ProtoPedia API Ver 2.0 does not publish response schemas; its documentation only shows an example response. The response types are inferred from observed responses, so actual responses may not always match them (e.g. attributes typed as required may be missing).
 - TSV download currently uses `Accept: application/json` internally for compatibility.
 
 ## License
