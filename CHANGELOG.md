@@ -9,6 +9,12 @@
     - Upgrade your runtime to Node.js 22 or later
     - There are no changes to the public API or type definitions; no code changes are required on Node.js 22 or later
 
+### Fixed
+
+- Log client timeouts as `HTTP request timed out` instead of `HTTP request threw an unexpected error` or `HTTP request aborted`. The thrown error is unchanged
+- Log caller aborts as `HTTP request aborted by caller` regardless of the abort reason (e.g. `abort(new Error(...))`, `AbortSignal.timeout()`). The thrown abort reason is unchanged
+- Exceptions thrown by a custom logger no longer change the request result (a successful response is no longer turned into a failure, and the original error is no longer replaced)
+
 ### CI
 
 - Update test matrix to Node.js 22.x, 24.x and 26.x (drop 20.x)
@@ -28,6 +34,8 @@
 - Use the official name "ProtoPedia API Ver 2.0" in README, package description and JSDoc
 - Clarify in README that response types are inferred from observed responses, since ProtoPedia API Ver 2.0 does not publish response schemas
 - Fix broken links to the type definition sources in README
+- Fix README examples: the client does not read environment variables, so pass the token explicitly (Getting Started, Logging)
+- Document client options, the default log level, custom loggers, header masking, and timeout/abort behavior in README, and handle the rejection in the abort example
 
 ## 3.0.0 - 2025-12-11
 
