@@ -9,26 +9,6 @@
  */
 
 /**
- * @deprecated Use `ListPrototypesParams` instead.
- */
-export interface ListPrototypesParams_Old {
-  keyword?: string;
-  tag?: string;
-  series?: string;
-  hardwareId?: number;
-  softwareId?: number;
-  page?: number;
-  perPage?: number;
-  order?: 'asc' | 'desc';
-  sort?: 'created_at' | 'updated_at' | 'likes';
-  since?: string;
-  until?: string;
-  ids?: number[];
-  includeMembers?: boolean;
-  includeLinks?: boolean;
-}
-
-/**
  * Query parameters for listing prototypes.
  *
  * ProtoPedia API Ver 2.0 · Apiary

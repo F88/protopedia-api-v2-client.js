@@ -142,6 +142,9 @@ For a comprehensive implementation example using this client, see:
 - Requests and responses:
     - [`ListPrototypesParams`](src/types/protopedia-api-v2/request.ts)
     - [`ListPrototypesApiResponse`](src/types/protopedia-api-v2/response.ts)
+- Logging:
+    - [`Logger`](src/logger.ts)
+    - [`LogLevel`](src/logger.ts)
 - Package entry point:
     - [`src/index.ts`](src/index.ts)
 
@@ -162,14 +165,18 @@ await client.listPrototypes({}, { logLevel: 'debug' }); // override
 Pass your own logger with the `logger` option. It needs `error`, `warn`, `info` and `debug` methods that take `(message, metadata?)`:
 
 ```ts
+import type { Logger } from 'protopedia-api-v2-client';
+
+const logger: Logger = {
+    error: (message, metadata) => myLogger.error(message, metadata),
+    warn: (message, metadata) => myLogger.warn(message, metadata),
+    info: (message, metadata) => myLogger.info(message, metadata),
+    debug: (message, metadata) => myLogger.debug(message, metadata),
+};
+
 const client = createProtoPediaClient({
     token: 'your-token',
-    logger: {
-        error: (message, metadata) => myLogger.error(message, metadata),
-        warn: (message, metadata) => myLogger.warn(message, metadata),
-        info: (message, metadata) => myLogger.info(message, metadata),
-        debug: (message, metadata) => myLogger.debug(message, metadata),
-    },
+    logger,
     logLevel: 'info',
 });
 ```
