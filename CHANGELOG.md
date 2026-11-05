@@ -7,7 +7,11 @@
 - **Drop Node.js 20 support**: The minimum supported Node.js version is now 22 (`engines.node: ">=22"`)
     - Node.js 20 reached end-of-life on 2026-04-30
     - Upgrade your runtime to Node.js 22 or later
-    - There are no changes to the public API or type definitions; no code changes are required on Node.js 22 or later
+- **Remove the deprecated `ListPrototypesParams_Old` type**: It was marked `@deprecated` and did not match the API parameters. Use `ListPrototypesParams` instead
+
+### Added
+
+- Export the `Logger` and `LogLevel` types from the package root, for implementing a custom logger
 
 ### Fixed
 
