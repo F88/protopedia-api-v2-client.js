@@ -1092,7 +1092,13 @@ describe('createProtoPediaClient', () => {
       createProtoPediaClient({
         // no token
       });
-    }).toThrowError('Missing PROTOPEDIA_API_V2_TOKEN.');
+    }).toThrowError('Missing API token. Pass it with the `token` option.');
+  });
+
+  it('throws an error when token is an empty string', () => {
+    expect(() => {
+      createProtoPediaClient({ token: '' });
+    }).toThrowError('Missing API token. Pass it with the `token` option.');
   });
 });
 

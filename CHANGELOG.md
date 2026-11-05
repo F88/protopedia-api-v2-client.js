@@ -14,6 +14,7 @@
 - Log client timeouts as `HTTP request timed out` instead of `HTTP request threw an unexpected error` or `HTTP request aborted`. The thrown error is unchanged
 - Log caller aborts as `HTTP request aborted by caller` regardless of the abort reason (e.g. `abort(new Error(...))`, `AbortSignal.timeout()`). The thrown abort reason is unchanged
 - Exceptions thrown by a custom logger no longer change the request result (a successful response is no longer turned into a failure, and the original error is no longer replaced)
+- `createProtoPediaClient` now throws ``Missing API token. Pass it with the `token` option.`` instead of `Missing PROTOPEDIA_API_V2_TOKEN.` when the token is missing. The client does not read the `PROTOPEDIA_API_V2_TOKEN` environment variable, so the previous message was misleading. Code that matches the old message needs to be updated
 
 ### CI
 

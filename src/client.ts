@@ -389,7 +389,7 @@ export function createProtoPediaClient(
 ): ProtoPediaApiClient {
   const token = options.token;
   if (token == null || !token) {
-    throw new Error('Missing PROTOPEDIA_API_V2_TOKEN.');
+    throw new Error('Missing API token. Pass it with the `token` option.');
   }
   return new ProtoPediaApiClient(options);
 }
