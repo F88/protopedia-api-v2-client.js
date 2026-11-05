@@ -61,6 +61,32 @@ function createTestLogger() {
   return { logger, error, warn, info, debug };
 }
 
+/**
+ * Creates a fetch mock that never resolves and rejects when its signal aborts.
+ *
+ * - 'reason': rejects with `signal.reason`, as Node.js fetch does
+ * - 'abortError': rejects with a generic AbortError, ignoring the reason
+ */
+function createAbortAwareFetch(rejectWith: 'reason' | 'abortError') {
+  return vi.fn<FetchFn>(
+    (_url, init) =>
+      new Promise((_resolve, reject) => {
+        const signal = init?.signal as AbortSignal | undefined;
+        const onAbort = () =>
+          reject(
+            rejectWith === 'reason'
+              ? signal?.reason
+              : new DOMException('Aborted', 'AbortError'),
+          );
+        if (signal?.aborted) {
+          onAbort();
+          return;
+        }
+        signal?.addEventListener('abort', onAbort, { once: true });
+      }),
+  );
+}
+
 describe('ProtoPediaApiClient', () => {
   describe('constructor', () => {
     it('sets default values for optional parameters', () => {
@@ -586,6 +612,45 @@ describe('ProtoPediaApiClient', () => {
       });
     });
 
+    it('throws TimeoutError and logs a timeout error when the client timeout fires', async () => {
+      // Fetch mock that rejects with the abort reason, as Node.js fetch does
+      const fetchMock = vi.fn<FetchFn>(
+        (_url, init) =>
+          new Promise((_resolve, reject) => {
+            const signal = init?.signal as AbortSignal | undefined;
+            const onAbort = () => reject(signal?.reason);
+            if (signal?.aborted) {
+              onAbort();
+              return;
+            }
+            signal?.addEventListener('abort', onAbort, { once: true });
+          }),
+      );
+
+      const { logger, error } = createTestLogger();
+      const client = new ProtoPediaApiClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        timeoutMs: 10,
+        logger,
+        logLevel: 'error',
+      });
+
+      await expect(client.listPrototypes()).rejects.toMatchObject({
+        name: 'TimeoutError',
+        message: 'Request timed out after 10 ms',
+      });
+      expect(error).toHaveBeenCalledWith(
+        'HTTP request timed out',
+        expect.objectContaining({ method: 'GET' }),
+      );
+      expect(error).not.toHaveBeenCalledWith(
+        'HTTP request threw an unexpected error',
+        expect.anything(),
+      );
+    });
+
     it('propagates caller abort reason when aborted by caller', async () => {
       const fetchMock = vi.fn<FetchFn>(
         (_url, init) =>
@@ -619,6 +684,129 @@ describe('ProtoPediaApiClient', () => {
       await expect(
         client.listPrototypes(undefined, { signal: controller.signal }),
       ).rejects.toBe(reason);
+    });
+
+    describe('abort and timeout classification', () => {
+      function createClient(fetchMock: FetchFn, timeoutMs: number) {
+        const testLogger = createTestLogger();
+        const client = new ProtoPediaApiClient({
+          token: 't',
+          baseUrl: BASE_URL,
+          fetch: fetchMock,
+          timeoutMs,
+          logger: testLogger.logger,
+          logLevel: 'warn',
+        });
+        return { client, ...testLogger };
+      }
+
+      it.each([
+        ['an Error', new Error('user cancelled')],
+        ['a string', 'stop'],
+        [
+          'a TimeoutError (e.g. AbortSignal.timeout)',
+          new DOMException('Timed out', 'TimeoutError'),
+        ],
+      ])(
+        'treats a caller abort with %s as a caller abort',
+        async (_label, reason) => {
+          const { client, warn, error } = createClient(
+            createAbortAwareFetch('reason'),
+            5_000,
+          );
+          const controller = new AbortController();
+          const promise = client.listPrototypes(undefined, {
+            signal: controller.signal,
+          });
+          controller.abort(reason);
+
+          await expect(promise).rejects.toBe(reason);
+          expect(warn).toHaveBeenCalledWith(
+            'HTTP request aborted by caller',
+            expect.objectContaining({ reason }),
+          );
+          expect(error).not.toHaveBeenCalled();
+        },
+      );
+
+      it('logs a client timeout even when fetch rejects with a generic AbortError', async () => {
+        const { client, error, warn } = createClient(
+          createAbortAwareFetch('abortError'),
+          10,
+        );
+
+        await expect(client.listPrototypes()).rejects.toMatchObject({
+          name: 'AbortError',
+        });
+        expect(error).toHaveBeenCalledWith(
+          'HTTP request timed out',
+          expect.objectContaining({ method: 'GET' }),
+        );
+        expect(warn).not.toHaveBeenCalled();
+      });
+
+      it('rethrows a network failure as-is even if the caller aborted in the meantime', async () => {
+        // fetch that ignores the signal and fails with a network error later
+        const fetchMock = vi.fn<FetchFn>(
+          () =>
+            new Promise((_resolve, reject) => {
+              setTimeout(() => reject(new TypeError('fetch failed')), 30);
+            }),
+        );
+        const { client, warn, error } = createClient(fetchMock, 5_000);
+        const controller = new AbortController();
+        const promise = client.listPrototypes(undefined, {
+          signal: controller.signal,
+        });
+        controller.abort(new Error('user cancelled'));
+
+        await expect(promise).rejects.toMatchObject({
+          name: 'TypeError',
+          message: 'fetch failed',
+        });
+        expect(error).toHaveBeenCalledWith(
+          'HTTP request threw an unexpected error',
+          expect.anything(),
+        );
+        expect(warn).not.toHaveBeenCalled();
+      });
+
+      it('treats a caller abort as a caller abort even after the client timeout would have used a TimeoutError', async () => {
+        const { client, warn, error } = createClient(
+          createAbortAwareFetch('reason'),
+          5_000,
+        );
+        const reason = new DOMException('caller deadline', 'TimeoutError');
+        const promise = client.listPrototypes(undefined, {
+          signal: AbortSignal.abort(reason),
+        });
+
+        await expect(promise).rejects.toBe(reason);
+        expect(warn).toHaveBeenCalledWith(
+          'HTTP request aborted by caller',
+          expect.objectContaining({ reason }),
+        );
+        expect(error).not.toHaveBeenCalledWith(
+          'HTTP request timed out',
+          expect.anything(),
+        );
+      });
+
+      it('logs a generic AbortError not caused by caller or timeout as aborted', async () => {
+        const fetchMock = vi.fn<FetchFn>(() =>
+          Promise.reject(new DOMException('Aborted', 'AbortError')),
+        );
+        const { client, warn, error } = createClient(fetchMock, 5_000);
+
+        await expect(client.listPrototypes()).rejects.toMatchObject({
+          name: 'AbortError',
+        });
+        expect(warn).toHaveBeenCalledWith(
+          'HTTP request aborted',
+          expect.objectContaining({ method: 'GET' }),
+        );
+        expect(error).not.toHaveBeenCalled();
+      });
     });
 
     it('downloads TSV text and targets the correct endpoint', async () => {
@@ -674,6 +862,59 @@ describe('ProtoPediaApiClient', () => {
     });
   });
 
+  describe('logger failures', () => {
+    const throwingLogger: Logger = {
+      error: () => {
+        throw new Error('logger broke');
+      },
+      warn: () => {
+        throw new Error('logger broke');
+      },
+      info: () => {
+        throw new Error('logger broke');
+      },
+      debug: () => {
+        throw new Error('logger broke');
+      },
+    };
+
+    it('does not turn a successful response into a failure', async () => {
+      const fetchMock = vi.fn<FetchFn>(() =>
+        Promise.resolve(
+          new Response(JSON.stringify({ count: 0, results: [] }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }),
+        ),
+      );
+      const client = new ProtoPediaApiClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger: throwingLogger,
+        logLevel: 'debug',
+      });
+
+      await expect(client.listPrototypes()).resolves.toMatchObject({
+        count: 0,
+      });
+    });
+
+    it('does not replace the original error', async () => {
+      const original = new TypeError('fetch failed');
+      const fetchMock = vi.fn<FetchFn>(() => Promise.reject(original));
+      const client = new ProtoPediaApiClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger: throwingLogger,
+        logLevel: 'debug',
+      });
+
+      await expect(client.listPrototypes()).rejects.toBe(original);
+    });
+  });
+
   describe('execute (via subclass)', () => {
     class TestClient extends ProtoPediaApiClient {
       public async callExecute(
@@ -721,8 +962,8 @@ describe('ProtoPediaApiClient', () => {
       expect((init as RequestInit).body).toBe(JSON.stringify({ a: 1 }));
     });
 
-    it('logs unexpected errors (e.g., TimeoutError) and rethrows', async () => {
-      const unexpected = new DOMException('boom', 'TimeoutError');
+    it('logs unexpected errors (e.g., network failure) and rethrows', async () => {
+      const unexpected = new TypeError('fetch failed');
       const fetchMock = vi.fn<FetchFn>(() => Promise.reject(unexpected));
       const { logger, error } = createTestLogger();
       const client = new TestClient({
@@ -851,7 +1092,13 @@ describe('createProtoPediaClient', () => {
       createProtoPediaClient({
         // no token
       });
-    }).toThrowError('Missing PROTOPEDIA_API_V2_TOKEN.');
+    }).toThrowError('Missing API token. Pass it with the `token` option.');
+  });
+
+  it('throws an error when token is an empty string', () => {
+    expect(() => {
+      createProtoPediaClient({ token: '' });
+    }).toThrowError('Missing API token. Pass it with the `token` option.');
   });
 });
 
