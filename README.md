@@ -168,8 +168,8 @@ controller.abort(new DOMException('User cancel', 'AbortError'));
 
 Types are emitted to `lib/types`. Public type exports are available via the package root. See:
 
-- [`types/index.ts`](types/index.ts)
-- [`types/protopedia-api-v2`](types/protopedia-api-v2)
+- [`src/index.ts`](src/index.ts)
+- [`src/types/protopedia-api-v2`](src/types/protopedia-api-v2)
 
 ## Notes
 
