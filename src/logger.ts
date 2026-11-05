@@ -148,10 +148,14 @@ function wrapMethod(
   method: (message: string, metadata?: unknown) => void,
 ): (message: string, metadata?: unknown) => void {
   return (message: string, metadata?: unknown) => {
-    if (metadata === undefined) {
-      method(message);
-    } else {
-      method(message, metadata);
+    try {
+      if (metadata === undefined) {
+        method(message);
+      } else {
+        method(message, metadata);
+      }
+    } catch {
+      // Logging must never change the outcome of a request.
     }
   };
 }

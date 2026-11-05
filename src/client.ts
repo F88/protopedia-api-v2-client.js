@@ -183,7 +183,9 @@ export class ProtoPediaApiClient {
       requestOptions?.headers,
     );
 
-    const { signal, cleanup } = this.createAbortSignal(requestOptions?.signal);
+    const { signal, cleanup, isTimedOut } = this.createAbortSignal(
+      requestOptions?.signal,
+    );
 
     const init: RequestInit = {
       method,
@@ -228,20 +230,42 @@ export class ProtoPediaApiClient {
       if (error instanceof ProtoPediaApiError) {
         throw error;
       }
-      if (isAbortError(error) && requestOptions?.signal?.aborted) {
+      // Treat the error as caused by the abort only when it is the abort
+      // reason itself or an AbortError: fetch may reject with either. Other
+      // errors (e.g. a network failure) are rethrown as-is even if a signal
+      // was aborted in the meantime.
+      const causedByAbort =
+        signal.aborted && (error === signal.reason || isAbortError(error));
+      const callerSignal = requestOptions?.signal;
+      if (
+        causedByAbort &&
+        callerSignal?.aborted &&
+        signal.reason === callerSignal.reason
+      ) {
         this.log(
           'warn',
           'HTTP request aborted by caller',
           {
             method,
             url,
-            reason: requestOptions.signal.reason,
+            reason: callerSignal.reason,
           },
           logLevelValue,
         );
-        throw requestOptions.signal.reason ?? error;
+        throw callerSignal.reason ?? error;
       }
-      if (isAbortError(error)) {
+      if (causedByAbort && isTimedOut()) {
+        this.log(
+          'error',
+          'HTTP request timed out',
+          {
+            method,
+            url,
+            error,
+          },
+          logLevelValue,
+        );
+      } else if (isAbortError(error)) {
         this.log(
           'warn',
           'HTTP request aborted',
@@ -285,15 +309,19 @@ export class ProtoPediaApiClient {
   private createAbortSignal(signal?: AbortSignal): {
     signal: AbortSignal;
     cleanup: () => void;
+    /** True when the signal was aborted by this client's own timeout. */
+    isTimedOut: () => boolean;
   } {
     const controller = new AbortController();
     const timeoutMs = this.timeoutMs;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
     let abortListener: (() => void) | undefined;
+    let timeoutError: DOMException | undefined;
 
     if (Number.isFinite(timeoutMs) && timeoutMs > 0) {
       timeoutId = setTimeout(() => {
-        controller.abort(createTimeoutError(timeoutMs));
+        timeoutError = createTimeoutError(timeoutMs);
+        controller.abort(timeoutError);
       }, timeoutMs);
     }
 
@@ -317,7 +345,10 @@ export class ProtoPediaApiClient {
       }
     };
 
-    return { signal: controller.signal, cleanup };
+    const isTimedOut = () =>
+      timeoutError !== undefined && controller.signal.reason === timeoutError;
+
+    return { signal: controller.signal, cleanup, isTimedOut };
   }
 
   private log(

@@ -81,6 +81,21 @@ describe('createLoggerConfig', () => {
       key: 'value',
     });
   });
+
+  it('swallows exceptions thrown by logger methods', () => {
+    const throwing = () => {
+      throw new Error('logger broke');
+    };
+    const config = createLoggerConfig(
+      { error: throwing, warn: throwing, info: throwing, debug: throwing },
+      'debug',
+    );
+
+    expect(() => config.logger.error('message')).not.toThrow();
+    expect(() =>
+      config.logger.debug('message', { key: 'value' }),
+    ).not.toThrow();
+  });
 });
 
 describe('shouldLog', () => {
