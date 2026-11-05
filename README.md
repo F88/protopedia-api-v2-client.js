@@ -1,4 +1,4 @@
-# ProtoPedia API Ver 2.0 Client for Javascript
+# ProtoPedia API Ver 2.0 Client for JavaScript
 
 [![npm version](https://badge.fury.io/js/protopedia-api-v2-client.svg?icon=si%3Anpm)](https://badge.fury.io/js/protopedia-api-v2-client)
 [![codecov](https://codecov.io/gh/F88/protopedia-api-v2-client.js/graph/badge.svg?token=4HDWGCEAHS)](https://codecov.io/gh/F88/protopedia-api-v2-client.js)
@@ -8,8 +8,6 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/F88/protopedia-api-v2-client.js)
 [![View Code Wiki](https://www.gstatic.com/_/boq-sdlc-agents-ui/_/r/YUi5dj2UWvE.svg)](https://codewiki.google/github.com/f88/protopedia-api-v2-client.js)
 
-ProtoPedia API Ver 2.0 Client for Javascript
-
 ## Description
 
 Type-safe, ESM-first client for the ProtoPedia API Ver 2.0. Built with TypeScript, tested with Vitest, and ready for Node.js 22+.
@@ -18,7 +16,7 @@ Type-safe, ESM-first client for the ProtoPedia API Ver 2.0. Built with TypeScrip
 - Fully typed request/response models (response types are inferred from observed responses; see [Notes](#notes))
 - Pluggable logging with level control
 - Abortable requests and configurable timeout
-- Minimal, dependency-light
+- No runtime dependencies
 
 ## Requirements
 
@@ -49,20 +47,9 @@ npm install protopedia-api-v2-client
 
 ## Getting Started
 
-Set your API token:
-
-```sh
-export PROTOPEDIA_API_V2_TOKEN=your-token
-```
-
-Or create a `.env` file (see `.env.example`):
-
-```dotenv
-PROTOPEDIA_API_V2_TOKEN=your-token
-PROTOPEDIA_API_LOG_LEVEL=info
-```
-
 ### Create a client
+
+Pass your API token when creating a client:
 
 ```ts
 import { createProtoPediaClient } from 'protopedia-api-v2-client';
@@ -71,6 +58,26 @@ const client = createProtoPediaClient({
     token: 'your-token',
 });
 ```
+
+The client does not read environment variables by itself. To keep the token out of your source code (recommended when sharing or committing it), read it from an environment variable in your code and pass it explicitly:
+
+```ts
+const client = createProtoPediaClient({
+    token: process.env.PROTOPEDIA_API_V2_TOKEN,
+});
+```
+
+### Client options
+
+| Option      | Default                                           | Description                                                                                      |
+| ----------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `token`     | (required)                                        | API token, sent as `Authorization: Bearer <token>`                                               |
+| `baseUrl`   | `https://protopedia.net/v2/api`                   | Base URL of the API                                                                              |
+| `fetch`     | `globalThis.fetch`                                | Custom `fetch` implementation (must honor `init.signal`)                                         |
+| `userAgent` | `ProtoPedia API Ver 2.0 Node.js Client/<version>` | Sent as the `X-Client-User-Agent` header                                                         |
+| `timeoutMs` | `15000`                                           | Request timeout in milliseconds (`0` disables it). See [Timeouts and Abort](#timeouts-and-abort) |
+| `logger`    | `console`                                         | Custom logger. See [Logging](#logging)                                                           |
+| `logLevel`  | `error`                                           | Log level. See [Logging](#logging)                                                               |
 
 ## Usage
 
@@ -133,35 +140,61 @@ For a comprehensive implementation example using this client, see:
 - Errors:
     - [`ProtoPediaApiError`](src/errors.ts)
 - Requests and responses:
-    - [`ListPrototypesParams`](types/protopedia-api-v2/request.ts)
-    - [`ListPrototypesApiResponse`](types/protopedia-api-v2/response.ts)
-- Package entry points:
+    - [`ListPrototypesParams`](src/types/protopedia-api-v2/request.ts)
+    - [`ListPrototypesApiResponse`](src/types/protopedia-api-v2/response.ts)
+- Package entry point:
     - [`src/index.ts`](src/index.ts)
-    - [`types/index.ts`](types/index.ts)
 
 ## Logging
 
-Supported levels: `silent`, `error`, `warn`, `info`, `debug`.
+Supported levels: `silent`, `error`, `warn`, `info`, `debug` (default: `error`).
 
 Configure at client creation time or per request:
 
 ```ts
-const client = createProtoPediaClient({ logLevel: 'warn' });
+const client = createProtoPediaClient({
+    token: 'your-token',
+    logLevel: 'warn',
+});
 await client.listPrototypes({}, { logLevel: 'debug' }); // override
 ```
 
-Headers are sanitized for logging (token-like headers are masked). See [`headersForLogging`](src/logger.ts).
+Pass your own logger with the `logger` option. It needs `error`, `warn`, `info` and `debug` methods that take `(message, metadata?)`:
+
+```ts
+const client = createProtoPediaClient({
+    token: 'your-token',
+    logger: {
+        error: (message, metadata) => myLogger.error(message, metadata),
+        warn: (message, metadata) => myLogger.warn(message, metadata),
+        info: (message, metadata) => myLogger.info(message, metadata),
+        debug: (message, metadata) => myLogger.debug(message, metadata),
+    },
+    logLevel: 'info',
+});
+```
+
+- Exceptions thrown by the logger are ignored, so logging never changes the result of a request.
+- Headers are sanitized for logging: values of headers whose name contains `token` or `auth` (case-insensitive) are masked as `***`. See [`headersForLogging`](src/logger.ts).
 
 ## Timeouts and Abort
 
 - Default timeout: `15000 ms`
-- Override with `timeoutMs` in client options
-- Pass an `AbortSignal` per request
+- Override with `timeoutMs` in client options (`0` disables the timeout)
+- Pass an `AbortSignal` per request to cancel it
+- Both the timeout and the cancellation work by aborting the `signal` passed to `fetch`. A custom `fetch` must honor `init.signal`; otherwise the request is not stopped
+- The rejection value depends on the `fetch` implementation: Node.js `fetch` rejects with the abort reason (a `DOMException` named `TimeoutError` on timeout, or the reason passed to `abort()` on cancellation), while some implementations reject with an `AbortError` instead
 
 ```ts
 const controller = new AbortController();
 const promise = client.listPrototypes({}, { signal: controller.signal });
 controller.abort(new DOMException('User cancel', 'AbortError'));
+
+try {
+    await promise;
+} catch (err) {
+    // With Node.js fetch, err is the reason passed to controller.abort()
+}
 ```
 
 ## TypeScript
