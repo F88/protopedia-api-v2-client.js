@@ -399,10 +399,12 @@ async function parseJson(
   method: string,
   context: string,
 ): Promise<unknown> {
+  // Read before parsing: the body can be read only once, and read failures
+  // (e.g. an abort or a network error) must propagate unchanged.
+  const text = await response.text();
   try {
-    return await response.json();
+    return JSON.parse(text);
   } catch (error) {
-    const text = await response.text();
     throw new ProtoPediaApiError({
       message: `Failed to parse ${context} response as JSON`,
       req: {
