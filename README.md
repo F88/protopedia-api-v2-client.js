@@ -191,7 +191,7 @@ const client = createProtoPediaClient({
 - The ProtoPedia API can take several seconds to respond, even for a small request. Avoid setting a very short `timeoutMs`
 - `timeoutMs: 0` disables the SDK timer. Invalid values, such as a negative number or `Infinity`, fall back to the default
 - Pass an `AbortSignal` per request to cancel it at any time. The call fails with the reason passed to `abort()`, or an `AbortError` if there is none
-- `timeoutMs` is an upper limit. It does not guarantee that the SDK waits that long: a request can fail earlier because of the runtime or the network, and `timeoutMs` does not change those limits. For example, Node.js `fetch` has its own connection, header, and body timeouts. These fail with a `TypeError` that has the code in `error.cause.code`. See [#68](https://github.com/F88/protopedia-api-v2-client.js/issues/68)
+- `timeoutMs` is an upper limit. It does not guarantee that the SDK waits that long: a request can fail earlier because of the runtime or the network, and `timeoutMs` does not change those limits. For example, Node.js `fetch` has its own connection, header, and body timeouts. These fail with a `TypeError` that has the code in `error.cause.code`. If the failure happens while reading an error response, `ProtoPediaApiError` keeps the status, and that `TypeError` is in `error.cause`. See [#68](https://github.com/F88/protopedia-api-v2-client.js/issues/68)
 - Both the timeout and the cancellation work by aborting the `signal` passed to `fetch`. A custom `fetch` must honor `init.signal` until the body has been read; otherwise the request is not stopped and `timeoutMs` has no effect
 
 ```ts
