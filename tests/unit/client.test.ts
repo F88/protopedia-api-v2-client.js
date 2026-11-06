@@ -987,7 +987,7 @@ describe('ProtoPediaApiClient', () => {
           );
         });
 
-        it('rethrows a read failure with its cause and logs it', async () => {
+        it('keeps the status when the read fails without an abort', async () => {
           const readError = new TypeError('terminated');
           const stream = new ReadableStream<Uint8Array>({
             start(controller) {
@@ -999,16 +999,34 @@ describe('ProtoPediaApiClient', () => {
             token: 't',
             baseUrl: BASE_URL,
             fetch: vi.fn<FetchFn>(() =>
-              Promise.resolve(new Response(stream, { status: 500 })),
+              Promise.resolve(
+                new Response(stream, {
+                  status: 503,
+                  statusText: 'Service Unavailable',
+                  headers: { 'Content-Type': 'application/json' },
+                }),
+              ),
             ),
             logger,
             logLevel: 'error',
           });
 
-          await expect(client.listPrototypes()).rejects.toBe(readError);
+          const failure = await client
+            .listPrototypes()
+            .catch((e: unknown) => e);
+
+          expect(failure).toBeInstanceOf(ProtoPediaApiError);
+          expect(failure).toMatchObject({
+            message: 'API request failed',
+            status: 503,
+            statusText: 'Service Unavailable',
+            body: null,
+            cause: readError,
+          });
+          expect(error).toHaveBeenCalledTimes(1);
           expect(error).toHaveBeenCalledWith(
-            'HTTP request threw an unexpected error',
-            expect.objectContaining({ error: readError }),
+            'API request failed',
+            expect.anything(),
           );
         });
       });

@@ -218,9 +218,20 @@ export class ProtoPediaApiClient {
         },
         logLevelValue,
       );
-      // Receive the whole body first so that read failures, including timeouts
-      // and aborts, reach the catch block below for any response status.
-      const text = await response.text();
+      // Receive the whole body first so that timeouts and aborts during the read
+      // reach the catch block below for any response status.
+      let text: string;
+      try {
+        text = await response.text();
+      } catch (readError) {
+        if (response.ok || signal.aborted) {
+          throw readError;
+        }
+        // The server already sent an error status, so keep it.
+        const apiError = buildError(response, method, undefined, readError);
+        this.log('error', 'API request failed', apiError, logLevelValue);
+        throw apiError;
+      }
       this.log(
         'debug',
         'HTTP response body received',
@@ -233,7 +244,7 @@ export class ProtoPediaApiClient {
         logLevelValue,
       );
       if (!response.ok) {
-        const apiError = buildError(response, text, method);
+        const apiError = buildError(response, method, text);
         this.log('error', 'API request failed', apiError, logLevelValue);
         throw apiError;
       }
@@ -443,14 +454,15 @@ export function createProtoPediaClient(
 
 function buildError(
   response: Response,
-  text: string,
   method: string,
+  text?: string,
+  cause?: unknown,
 ): ProtoPediaApiError {
   let body: unknown = text;
 
   // Prefer JSON when content-type hints JSON; otherwise keep the text.
   const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
-  if (contentType.includes('application/json')) {
+  if (text !== undefined && contentType.includes('application/json')) {
     try {
       body = JSON.parse(text);
     } catch {
@@ -468,5 +480,6 @@ function buildError(
     statusText: response.statusText,
     headers: headersToPlainObject(response.headers),
     body,
+    cause,
   });
 }

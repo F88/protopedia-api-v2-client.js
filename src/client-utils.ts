@@ -108,12 +108,8 @@ export function createTimeoutError(timeoutMs: number): DOMException {
 }
 
 /**
- * Narrower check for Fetch AbortError.
+ * Check for an AbortError, either a DOMException or an Error from a custom fetch.
  */
 export function isAbortError(error: unknown): error is Error {
-  // Some fetch implementations reject with an Error instead of a DOMException.
-  return (
-    (error instanceof DOMException || error instanceof Error) &&
-    error.name === 'AbortError'
-  );
+  return error instanceof Error && error.name === 'AbortError';
 }
