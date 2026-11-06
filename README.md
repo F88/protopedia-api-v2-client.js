@@ -69,15 +69,15 @@ const client = createProtoPediaClient({
 
 ### Client options
 
-| Option      | Default                                           | Description                                                                                      |
-| ----------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `token`     | (required)                                        | API token, sent as `Authorization: Bearer <token>`                                               |
-| `baseUrl`   | `https://protopedia.net/v2/api`                   | Base URL of the API                                                                              |
-| `fetch`     | `globalThis.fetch`                                | Custom `fetch` implementation (must honor `init.signal`)                                         |
-| `userAgent` | `ProtoPedia API Ver 2.0 Node.js Client/<version>` | Sent as the `X-Client-User-Agent` header                                                         |
-| `timeoutMs` | `15000`                                           | Request timeout in milliseconds (`0` disables it). See [Timeouts and Abort](#timeouts-and-abort) |
-| `logger`    | `console`                                         | Custom logger. See [Logging](#logging)                                                           |
-| `logLevel`  | `error`                                           | Log level. See [Logging](#logging)                                                               |
+| Option      | Default                                           | Description                                                                                                                                              |
+| ----------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `token`     | (required)                                        | API token, sent as `Authorization: Bearer <token>`                                                                                                       |
+| `baseUrl`   | `https://protopedia.net/v2/api`                   | Base URL of the API                                                                                                                                      |
+| `fetch`     | `globalThis.fetch`                                | Custom `fetch` implementation (must honor `init.signal`)                                                                                                 |
+| `userAgent` | `ProtoPedia API Ver 2.0 Node.js Client/<version>` | Sent as the `X-Client-User-Agent` header                                                                                                                 |
+| `timeoutMs` | `60000`                                           | Maximum time in milliseconds from the start of a request until the response is received (`0` disables it). See [Timeouts and Abort](#timeouts-and-abort) |
+| `logger`    | `console`                                         | Custom logger. See [Logging](#logging)                                                                                                                   |
+| `logLevel`  | `error`                                           | Log level. See [Logging](#logging)                                                                                                                       |
 
 ## Usage
 
@@ -186,11 +186,13 @@ const client = createProtoPediaClient({
 
 ## Timeouts and Abort
 
-- Default timeout: `15000 ms`
-- Override with `timeoutMs` in client options (`0` disables the timeout)
-- Pass an `AbortSignal` per request to cancel it
-- Both the timeout and the cancellation work by aborting the `signal` passed to `fetch`. A custom `fetch` must honor `init.signal`; otherwise the request is not stopped
-- The rejection value depends on the `fetch` implementation: Node.js `fetch` rejects with the abort reason (a `DOMException` named `TimeoutError` on timeout, or the reason passed to `abort()` on cancellation), while some implementations reject with an `AbortError` instead
+- `timeoutMs` is the maximum time from the start of a request until the response is received, including the response body. Converting the response to JSON is not included. The default is `60000 ms`
+- If the time runs out, the call fails with a `DOMException` named `TimeoutError`. If `fetch` fails with a different error at that moment, such as a network error, that error is thrown as is. Set a larger value for large downloads or slow networks
+- The ProtoPedia API can take several seconds to respond, even for a small request. Avoid setting a very short `timeoutMs`
+- `timeoutMs: 0` disables the SDK timer. Invalid values, such as a negative number or `Infinity`, fall back to the default
+- Pass an `AbortSignal` per request to cancel it at any time. The call fails with the reason passed to `abort()`, or an `AbortError` if there is none
+- `timeoutMs` is an upper limit. It does not guarantee that the SDK waits that long: a request can fail earlier because of the runtime or the network, and `timeoutMs` does not change those limits. For example, Node.js `fetch` has its own connection, header, and body timeouts. These fail with a `TypeError` that has the code in `error.cause.code`. If the failure happens while reading an error response, `ProtoPediaApiError` keeps the status, and that `TypeError` is in `error.cause`. See [#68](https://github.com/F88/protopedia-api-v2-client.js/issues/68)
+- Both the timeout and the cancellation work by aborting the `signal` passed to `fetch`. A custom `fetch` must honor `init.signal` until the body has been read; otherwise the request is not stopped and `timeoutMs` has no effect
 
 ```ts
 const controller = new AbortController();

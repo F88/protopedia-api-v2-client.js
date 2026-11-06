@@ -63,6 +63,12 @@ describe('client-utils', () => {
   });
 
   describe('toTimeout', () => {
+    it('caps values that overflow setTimeout', () => {
+      expect(toTimeout(2 ** 31 - 1, 100)).toBe(2 ** 31 - 1);
+      expect(toTimeout(2 ** 31, 100)).toBe(2 ** 31 - 1);
+      expect(toTimeout(Number.MAX_SAFE_INTEGER, 100)).toBe(2 ** 31 - 1);
+    });
+
     it('returns valid numbers and falls back for invalids', () => {
       expect(toTimeout(0, 100)).toBe(0);
       expect(toTimeout(10, 100)).toBe(10);
@@ -80,11 +86,17 @@ describe('client-utils', () => {
       expect(e.message).toContain('1234');
     });
 
-    it('isAbortError discriminates DOMException with name AbortError', () => {
+    it('isAbortError discriminates errors with name AbortError', () => {
       const abort = new DOMException('Aborted', 'AbortError');
+      const errorAbort = Object.assign(new Error('Aborted'), {
+        name: 'AbortError',
+      });
+      const notAnError = { name: 'AbortError' };
       const timeout = new DOMException('Timed out', 'TimeoutError');
       const other = new Error('boom');
       expect(isAbortError(abort)).toBe(true);
+      expect(isAbortError(errorAbort)).toBe(true);
+      expect(isAbortError(notAnError)).toBe(false);
       expect(isAbortError(timeout)).toBe(false);
       expect(isAbortError(other)).toBe(false);
     });

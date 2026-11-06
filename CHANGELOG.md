@@ -4,13 +4,23 @@
 
 ### BREAKING CHANGES
 
+- **`timeoutMs` now covers the whole response**: It limits the time from the start of a request until the response body is received. Previously it stopped when the response headers arrived, so a slow download could run past it. A slow download that succeeded before can now fail with `TimeoutError`; set a larger `timeoutMs` if needed (#68)
+- **The default `timeoutMs` is now 60 seconds** (previously 15 seconds), because it now covers the whole response
+- **A failed read of an error response body no longer sets `body.parseError`**: `ProtoPediaApiError` keeps the status, with `body` set to `null` and the read error in `cause`. A timeout or a caller abort during the read now fails with `TimeoutError` or the abort reason instead
 - **`ProtoPediaApiClient.execute()` is now private**: Subclasses can no longer call or override it. Use the `fetch` option to customize requests
+
+### Added
+
+- Log `HTTP response body received` with the body length at debug level
 
 ### Fixed
 
+- A timeout now fails with `TimeoutError` even if the `fetch` implementation rejects with an `AbortError`, whether a `DOMException` or an `Error`
+- A `timeoutMs` over 2147483647 no longer fails almost immediately. It is capped at that value
 - `listPrototypes()` now throws `ProtoPediaApiError` when a successful response is not valid JSON, instead of `TypeError: Body is unusable: Body has already been read`
 - `listPrototypes()` now rethrows the original error when reading the response body fails, instead of replacing it with the same `TypeError`
-- Aborting the caller's `signal` now stops reading the response body. Previously it had no effect once `fetch` resolved, and `listPrototypes()` and `downloadPrototypesTsv()` kept waiting for the body. `timeoutMs` behavior does not change
+- Aborting the caller's `signal` now stops reading the response body. Previously it had no effect once `fetch` resolved, and `listPrototypes()` and `downloadPrototypesTsv()` kept waiting for the body.
+- A JSON parse failure of a successful response is now logged at error level
 
 ## 4.0.0 - 2026-11-05
 
