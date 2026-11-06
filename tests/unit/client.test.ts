@@ -353,6 +353,59 @@ describe('ProtoPediaApiClient', () => {
       });
     });
 
+    it('throws ProtoPediaApiError for invalid JSON in a real Response', async () => {
+      const fetchMock = vi.fn<FetchFn>(() =>
+        Promise.resolve(new Response('not-json', { status: 200 })),
+      );
+      const { logger } = createTestLogger();
+
+      const client = new ProtoPediaApiClient({
+        token: 'token-123',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger,
+        logLevel: 'silent',
+      });
+
+      const error = await client
+        .listPrototypes({ tagNm: 'bad' })
+        .catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(ProtoPediaApiError);
+      expect(error).toMatchObject({
+        message: 'Failed to parse listPrototype response as JSON',
+        status: 200,
+        body: 'not-json',
+        cause: expect.any(SyntaxError),
+      });
+    });
+
+    it('rethrows the original error when reading the response body fails', async () => {
+      const readError = new Error('body read failed');
+      const stream = new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode('{"results":['));
+          controller.error(readError);
+        },
+      });
+      const fetchMock = vi.fn<FetchFn>(() =>
+        Promise.resolve(new Response(stream, { status: 200 })),
+      );
+      const { logger } = createTestLogger();
+
+      const client = new ProtoPediaApiClient({
+        token: 'token-123',
+        baseUrl: BASE_URL,
+        fetch: fetchMock,
+        logger,
+        logLevel: 'silent',
+      });
+
+      await expect(client.listPrototypes({ tagNm: 'x' })).rejects.toBe(
+        readError,
+      );
+    });
+
     it('builds headers including X-Client-User-Agent and allows override per request', async () => {
       const fetchMock = vi.fn<FetchFn>(() =>
         Promise.resolve(createJsonResponse(SAMPLE_API_RESPONSE)),

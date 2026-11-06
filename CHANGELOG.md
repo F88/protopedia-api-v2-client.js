@@ -1,5 +1,12 @@
 # protopedia-api-v2-client.js
 
+## Unreleased
+
+### Fixed
+
+- `listPrototypes()` now throws `ProtoPediaApiError` when a successful response is not valid JSON, instead of `TypeError: Body is unusable: Body has already been read`
+- `listPrototypes()` now rethrows the original error when reading the response body fails, instead of replacing it with the same `TypeError`
+
 ## 4.0.0 - 2026-11-05
 
 ### BREAKING CHANGES
