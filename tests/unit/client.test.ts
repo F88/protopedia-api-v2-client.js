@@ -4,7 +4,6 @@ import {
   createProtoPediaClient,
   ProtoPediaApiClient,
 } from '../../src/client.js';
-import type { ProtoPediaApiRequestOptions } from '../../src/client.js';
 import { ProtoPediaApiError } from '../../src/errors.js';
 import type { Logger } from '../../src/logger.js';
 
@@ -739,6 +738,120 @@ describe('ProtoPediaApiClient', () => {
       ).rejects.toBe(reason);
     });
 
+    describe('while the response body is being read', () => {
+      // Resolves at the headers and stalls the body, erroring the stream on
+      // abort, as a real fetch does.
+      const createStalledBodyFetch = (onResponse?: () => void) =>
+        vi.fn<FetchFn>((_url, init) => {
+          const signal = init?.signal as AbortSignal;
+          const stream = new ReadableStream<Uint8Array>({
+            start(controller) {
+              controller.enqueue(new TextEncoder().encode('{"results":['));
+              signal.addEventListener(
+                'abort',
+                () => controller.error(signal.reason),
+                { once: true },
+              );
+            },
+          });
+          onResponse?.();
+          return Promise.resolve(new Response(stream, { status: 200 }));
+        });
+
+      it('rejects listPrototypes with the abort reason when the caller aborts', async () => {
+        const controller = new AbortController();
+        const reason = new Error('caller-aborted');
+        const { logger, warn } = createTestLogger();
+        const client = new ProtoPediaApiClient({
+          token: 't',
+          baseUrl: BASE_URL,
+          fetch: createStalledBodyFetch(() => {
+            setTimeout(() => controller.abort(reason), 0);
+          }),
+          timeoutMs: 0,
+          logger,
+          logLevel: 'warn',
+        });
+
+        await expect(
+          client.listPrototypes(undefined, { signal: controller.signal }),
+        ).rejects.toBe(reason);
+        expect(warn).toHaveBeenCalledWith(
+          'HTTP request aborted by caller',
+          expect.objectContaining({ reason }),
+        );
+      });
+
+      it('rejects downloadPrototypesTsv with the abort reason when the caller aborts', async () => {
+        const controller = new AbortController();
+        const reason = new Error('caller-aborted');
+        const client = new ProtoPediaApiClient({
+          token: 't',
+          baseUrl: BASE_URL,
+          fetch: createStalledBodyFetch(() => {
+            setTimeout(() => controller.abort(reason), 0);
+          }),
+          timeoutMs: 0,
+          logLevel: 'silent',
+        });
+
+        await expect(
+          client.downloadPrototypesTsv(undefined, {
+            signal: controller.signal,
+          }),
+        ).rejects.toBe(reason);
+      });
+
+      it('does not apply timeoutMs to the body read', async () => {
+        const fetchMock = vi.fn<FetchFn>(() => {
+          const stream = new ReadableStream<Uint8Array>({
+            start(controller) {
+              setTimeout(() => {
+                controller.enqueue(new TextEncoder().encode('{"results":[]}'));
+                controller.close();
+              }, 50);
+            },
+          });
+          return Promise.resolve(new Response(stream, { status: 200 }));
+        });
+        const client = new ProtoPediaApiClient({
+          token: 't',
+          baseUrl: BASE_URL,
+          fetch: fetchMock,
+          timeoutMs: 10,
+          logLevel: 'silent',
+        });
+
+        await expect(client.listPrototypes()).resolves.toEqual({
+          results: [],
+        });
+      });
+
+      it('removes the caller abort listener once the body has been read', async () => {
+        const controller = new AbortController();
+        const removeListener = vi.spyOn(
+          controller.signal,
+          'removeEventListener',
+        );
+        const fetchMock = vi.fn<FetchFn>(() =>
+          Promise.resolve(new Response('{"results":[]}', { status: 200 })),
+        );
+        const client = new ProtoPediaApiClient({
+          token: 't',
+          baseUrl: BASE_URL,
+          fetch: fetchMock,
+          logLevel: 'silent',
+        });
+
+        await client.listPrototypes(undefined, { signal: controller.signal });
+
+        expect(removeListener).toHaveBeenCalledWith(
+          'abort',
+          expect.any(Function),
+        );
+      });
+    });
+
     describe('abort and timeout classification', () => {
       function createClient(fetchMock: FetchFn, timeoutMs: number) {
         const testLogger = createTestLogger();
@@ -968,74 +1081,24 @@ describe('ProtoPediaApiClient', () => {
     });
   });
 
-  describe('execute (via subclass)', () => {
-    class TestClient extends ProtoPediaApiClient {
-      public async callExecute(
-        url: string,
-        options: {
-          method: 'GET';
-          headers?: HeadersInit;
-          body?: BodyInit | null;
-        },
-        requestOptions?: ProtoPediaApiRequestOptions,
-      ) {
-        // expose protected for test
-        return this.execute(url, options, requestOptions);
-      }
-    }
-
-    it('sends body when provided in options', async () => {
-      const fetchMock = vi.fn<FetchFn>(() =>
-        Promise.resolve(
-          new Response('ok', {
-            status: 200,
-            headers: { 'Content-Type': 'text/plain' },
-          }),
-        ),
-      );
-      const { logger } = createTestLogger();
-      const client = new TestClient({
-        token: 't',
-        baseUrl: BASE_URL,
-        fetch: fetchMock,
-        logger,
-        logLevel: 'silent',
-      });
-      const url = `${BASE_URL}/prototype/list`;
-      await client.callExecute(url, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ a: 1 }),
-      });
-      const [, init] = fetchMock.mock.calls[0] ?? [];
-      expect((init as RequestInit).method).toBe('GET');
-      expect(
-        new Headers((init as RequestInit).headers).get('Content-Type'),
-      ).toBe('application/json');
-      expect((init as RequestInit).body).toBe(JSON.stringify({ a: 1 }));
+  it('logs unexpected errors (e.g., network failure) and rethrows', async () => {
+    const unexpected = new TypeError('fetch failed');
+    const fetchMock = vi.fn<FetchFn>(() => Promise.reject(unexpected));
+    const { logger, error } = createTestLogger();
+    const client = new ProtoPediaApiClient({
+      token: 't',
+      baseUrl: BASE_URL,
+      fetch: fetchMock,
+      logger,
+      logLevel: 'error',
     });
 
-    it('logs unexpected errors (e.g., network failure) and rethrows', async () => {
-      const unexpected = new TypeError('fetch failed');
-      const fetchMock = vi.fn<FetchFn>(() => Promise.reject(unexpected));
-      const { logger, error } = createTestLogger();
-      const client = new TestClient({
-        token: 't',
-        baseUrl: BASE_URL,
-        fetch: fetchMock,
-        logger,
-        logLevel: 'error',
-      });
+    await expect(client.listPrototypes()).rejects.toBe(unexpected);
 
-      await expect(
-        client.callExecute(`${BASE_URL}/prototype/list`, { method: 'GET' }),
-      ).rejects.toBe(unexpected);
-
-      expect(error).toHaveBeenCalledWith(
-        'HTTP request threw an unexpected error',
-        expect.objectContaining({ error: unexpected }),
-      );
-    });
+    expect(error).toHaveBeenCalledWith(
+      'HTTP request threw an unexpected error',
+      expect.objectContaining({ error: unexpected }),
+    );
   });
 
   describe('downloadPrototypesTsv', () => {

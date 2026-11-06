@@ -2,10 +2,15 @@
 
 ## Unreleased
 
+### BREAKING CHANGES
+
+- **`ProtoPediaApiClient.execute()` is now private**: Subclasses can no longer call or override it. Use the `fetch` option to customize requests
+
 ### Fixed
 
 - `listPrototypes()` now throws `ProtoPediaApiError` when a successful response is not valid JSON, instead of `TypeError: Body is unusable: Body has already been read`
 - `listPrototypes()` now rethrows the original error when reading the response body fails, instead of replacing it with the same `TypeError`
+- Aborting the caller's `signal` now stops reading the response body. Previously it had no effect once `fetch` resolved, and `listPrototypes()` and `downloadPrototypesTsv()` kept waiting for the body. `timeoutMs` behavior does not change
 
 ## 4.0.0 - 2026-11-05
 

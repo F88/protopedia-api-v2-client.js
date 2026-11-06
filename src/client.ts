@@ -52,7 +52,6 @@ type FetchFn = typeof fetch;
 interface ExecuteOptions {
   readonly method: 'GET';
   readonly headers?: HeadersInit;
-  readonly body?: BodyInit | null;
 }
 
 export class ProtoPediaApiClient {
@@ -106,7 +105,7 @@ export class ProtoPediaApiClient {
       serializeListPrototypeParams(params),
     );
     const method = 'GET';
-    const response = await this.execute(
+    const payload = (await this.execute(
       url,
       {
         method,
@@ -116,12 +115,7 @@ export class ProtoPediaApiClient {
       },
       requestOptions,
       logLevelValue,
-    );
-
-    const payload = (await parseJson(
-      response,
-      method,
-      'listPrototype',
+      (response) => parseJson(response, method, 'listPrototype'),
     )) as ListPrototypesApiResponse;
     this.log('debug', 'listPrototype response payload', payload, logLevelValue);
     return payload;
@@ -142,7 +136,7 @@ export class ProtoPediaApiClient {
       serializeListPrototypeParams(params),
     );
     const method = 'GET';
-    const response = await this.execute(
+    const text = await this.execute(
       url,
       {
         method,
@@ -152,9 +146,8 @@ export class ProtoPediaApiClient {
       },
       requestOptions,
       logLevelValue,
+      (response) => response.text(),
     );
-
-    const text = await response.text();
     this.log(
       'debug',
       'downloadPrototypesTsv response payload',
@@ -165,17 +158,20 @@ export class ProtoPediaApiClient {
   }
 
   /**
-   * Performs the underlying HTTP request and wraps common logging and error handling.
+   * Performs the HTTP request, reads the response with `readBody`, and wraps
+   * common logging and error handling.
+   *
+   * `timeoutMs` stops applying once the response is received, but the caller's
+   * signal keeps applying until `readBody` settles.
    */
-  protected async execute(
+  private async execute<T>(
     url: string,
     options: ExecuteOptions,
-    requestOptions?: ProtoPediaApiRequestOptions,
-    configuredLevelValue?: number,
-  ): Promise<Response> {
-    const logLevelValue =
-      configuredLevelValue ?? this.resolveLogLevelValue(requestOptions);
-    const { method, body } = options;
+    requestOptions: ProtoPediaApiRequestOptions | undefined,
+    logLevelValue: number,
+    readBody: (response: Response) => Promise<T>,
+  ): Promise<T> {
+    const { method } = options;
     const headers = mergeHeaders(
       this.token ? { Authorization: `Bearer ${this.token}` } : undefined,
       this.userAgent ? { 'X-Client-User-Agent': this.userAgent } : undefined,
@@ -183,7 +179,7 @@ export class ProtoPediaApiClient {
       requestOptions?.headers,
     );
 
-    const { signal, cleanup, isTimedOut } = this.createAbortSignal(
+    const { signal, stopTimeout, cleanup, isTimedOut } = this.createAbortSignal(
       requestOptions?.signal,
     );
 
@@ -192,10 +188,6 @@ export class ProtoPediaApiClient {
       headers,
       signal,
     };
-
-    if (body !== undefined) {
-      init.body = body;
-    }
 
     try {
       this.log(
@@ -225,7 +217,9 @@ export class ProtoPediaApiClient {
         this.log('error', 'API request failed', apiError, logLevelValue);
         throw apiError;
       }
-      return response;
+      stopTimeout();
+      // `await` keeps the caller's signal and this catch block active.
+      return await readBody(response);
     } catch (error) {
       if (error instanceof ProtoPediaApiError) {
         throw error;
@@ -308,6 +302,7 @@ export class ProtoPediaApiClient {
 
   private createAbortSignal(signal?: AbortSignal): {
     signal: AbortSignal;
+    stopTimeout: () => void;
     cleanup: () => void;
     /** True when the signal was aborted by this client's own timeout. */
     isTimedOut: () => boolean;
@@ -336,10 +331,14 @@ export class ProtoPediaApiClient {
       }
     }
 
-    const cleanup = () => {
+    const stopTimeout = () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
+    };
+
+    const cleanup = () => {
+      stopTimeout();
       if (signal && abortListener) {
         signal.removeEventListener('abort', abortListener);
       }
@@ -348,7 +347,7 @@ export class ProtoPediaApiClient {
     const isTimedOut = () =>
       timeoutError !== undefined && controller.signal.reason === timeoutError;
 
-    return { signal: controller.signal, cleanup, isTimedOut };
+    return { signal: controller.signal, stopTimeout, cleanup, isTimedOut };
   }
 
   private log(
