@@ -76,8 +76,12 @@ export function trimTrailingSlash(value: string): string {
   return value.endsWith('/') ? value.slice(0, -1) : value;
 }
 
+// Larger delays overflow setTimeout, which then fires almost immediately.
+const MAX_TIMEOUT_MS = 2_147_483_647;
+
 /**
- * Normalize timeout values by ensuring non-negative finite numbers.
+ * Normalize timeout values by ensuring non-negative finite numbers within the
+ * range that setTimeout supports.
  */
 export function toTimeout(
   candidate: number | undefined,
@@ -88,7 +92,7 @@ export function toTimeout(
     Number.isFinite(candidate) &&
     candidate >= 0
   ) {
-    return candidate;
+    return Math.min(candidate, MAX_TIMEOUT_MS);
   }
   return fallback;
 }
@@ -106,6 +110,10 @@ export function createTimeoutError(timeoutMs: number): DOMException {
 /**
  * Narrower check for Fetch AbortError.
  */
-export function isAbortError(error: unknown): error is DOMException {
-  return error instanceof DOMException && error.name === 'AbortError';
+export function isAbortError(error: unknown): error is Error {
+  // Some fetch implementations reject with an Error instead of a DOMException.
+  return (
+    (error instanceof DOMException || error instanceof Error) &&
+    error.name === 'AbortError'
+  );
 }

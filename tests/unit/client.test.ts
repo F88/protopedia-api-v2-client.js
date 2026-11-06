@@ -94,7 +94,7 @@ describe('ProtoPediaApiClient', () => {
       expect(client['fetchFn']).toBe(globalThis.fetch);
       expect(client['token']).toBeUndefined();
       expect(client['baseUrl']).toBe('https://protopedia.net/v2/api');
-      expect(client['timeoutMs']).toBe(15_000);
+      expect(client['timeoutMs']).toBe(60_000);
       expect(client['logger']).toBeDefined();
       expect(client['logLevel']).toBe('error');
       expect(client['logLevelValue']).toBe(0);
@@ -117,7 +117,7 @@ describe('ProtoPediaApiClient', () => {
     it('normalizes timeoutMs via toTimeout (negative and Infinity fall back, zero allowed)', () => {
       const { logger } = createTestLogger();
       const c1 = new ProtoPediaApiClient({ timeoutMs: -1, logger });
-      expect(c1['timeoutMs']).toBe(15_000);
+      expect(c1['timeoutMs']).toBe(60_000);
 
       const c2 = new ProtoPediaApiClient({ timeoutMs: 0, logger });
       expect(c2['timeoutMs']).toBe(0);
@@ -126,7 +126,7 @@ describe('ProtoPediaApiClient', () => {
         timeoutMs: Number.POSITIVE_INFINITY,
         logger,
       });
-      expect(c3['timeoutMs']).toBe(15_000);
+      expect(c3['timeoutMs']).toBe(60_000);
     });
   });
 
@@ -379,6 +379,30 @@ describe('ProtoPediaApiClient', () => {
       });
     });
 
+    it('logs a JSON parse failure without the response body', async () => {
+      const { logger, error } = createTestLogger();
+      const client = new ProtoPediaApiClient({
+        token: 't',
+        baseUrl: BASE_URL,
+        fetch: vi.fn<FetchFn>(() =>
+          Promise.resolve(new Response('not-json', { status: 200 })),
+        ),
+        logger,
+        logLevel: 'error',
+      });
+
+      await expect(client.listPrototypes()).rejects.toBeInstanceOf(
+        ProtoPediaApiError,
+      );
+
+      expect(error).toHaveBeenCalledTimes(1);
+      expect(error).toHaveBeenCalledWith(
+        'Failed to parse listPrototype response as JSON',
+        expect.objectContaining({ method: 'GET', status: 200 }),
+      );
+      expect(JSON.stringify(error.mock.calls)).not.toContain('not-json');
+    });
+
     it('rethrows the original error when reading the response body fails', async () => {
       const readError = new Error('body read failed');
       const stream = new ReadableStream<Uint8Array>({
@@ -504,35 +528,6 @@ describe('ProtoPediaApiClient', () => {
       }
     });
 
-    it('falls back to parseError when failing to read error body', async () => {
-      // Simulate a response where both json() and text() fail
-      const failingResponse = {
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-        url: `${BASE_URL}/prototype/list`,
-        headers: new Headers(),
-        json: () => Promise.reject(new Error('bad json')),
-        text: () => Promise.reject(new Error('read fail')),
-      } as unknown as Response;
-      const fetchMock = vi.fn<FetchFn>(() => Promise.resolve(failingResponse));
-
-      const { logger } = createTestLogger();
-      const client = new ProtoPediaApiClient({
-        token: 't',
-        baseUrl: BASE_URL,
-        fetch: fetchMock,
-        logger,
-        logLevel: 'silent',
-      });
-
-      await expect(client.listPrototypes()).rejects.toMatchObject({
-        name: 'ProtoPediaApiError',
-        status: 500,
-        body: { parseError: 'read fail' },
-      });
-    });
-
     it('uses text fallback when Content-Type is application/json but json() fails', async () => {
       const failingJsonResponse = {
         ok: false,
@@ -567,73 +562,7 @@ describe('ProtoPediaApiClient', () => {
       });
     });
 
-    it('when non-JSON Content-Type: uses json() if text() fails', async () => {
-      const textFailsJsonSucceeds = {
-        ok: false,
-        status: 502,
-        statusText: 'Bad Gateway',
-        url: `${BASE_URL}/prototype/list`,
-        headers: new Headers({ 'Content-Type': 'text/plain' }),
-        text: () => Promise.reject(new Error('text broken')),
-        json: () => Promise.resolve({ fallback: 'json-body' }),
-      } as unknown as Response;
-
-      const fetchMock = vi.fn<FetchFn>(() =>
-        Promise.resolve(textFailsJsonSucceeds),
-      );
-
-      const { logger } = createTestLogger();
-      const client = new ProtoPediaApiClient({
-        token: 't',
-        baseUrl: BASE_URL,
-        fetch: fetchMock,
-        logger,
-        logLevel: 'silent',
-      });
-
-      await expect(client.listPrototypes()).rejects.toMatchObject({
-        name: 'ProtoPediaApiError',
-        status: 502,
-        body: { fallback: 'json-body' },
-      });
-    });
-
-    it('when application/json and both json() and text() fail, returns parseError from text() branch', async () => {
-      const readFail = new Error('unreadable');
-      const failingClone = {
-        json: () => Promise.reject(new Error('bad json')),
-      };
-      const failingResponse = {
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-        url: `${BASE_URL}/prototype/list`,
-        headers: new Headers({ 'Content-Type': 'application/json' }),
-        // clone().json() fails
-        clone: () => failingClone as unknown as Response,
-        // then response.text() also fails
-        text: () => Promise.reject(readFail),
-      } as unknown as Response;
-
-      const fetchMock = vi.fn<FetchFn>(() => Promise.resolve(failingResponse));
-
-      const { logger } = createTestLogger();
-      const client = new ProtoPediaApiClient({
-        token: 't',
-        baseUrl: BASE_URL,
-        fetch: fetchMock,
-        logger,
-        logLevel: 'silent',
-      });
-
-      await expect(client.listPrototypes()).rejects.toMatchObject({
-        name: 'ProtoPediaApiError',
-        status: 500,
-        body: { parseError: 'unreadable' },
-      });
-    });
-
-    it('aborts request due to client timeout and throws AbortError', async () => {
+    it('throws TimeoutError even when fetch rejects with a generic AbortError', async () => {
       // Abort-aware fetch mock: rejects with AbortError when the provided signal aborts
       const fetchMock = vi.fn<FetchFn>(
         (_url, init) =>
@@ -660,7 +589,7 @@ describe('ProtoPediaApiClient', () => {
       });
 
       await expect(client.listPrototypes()).rejects.toMatchObject({
-        name: 'AbortError',
+        name: 'TimeoutError',
       });
     });
 
@@ -741,7 +670,7 @@ describe('ProtoPediaApiClient', () => {
     describe('while the response body is being read', () => {
       // Resolves at the headers and stalls the body, erroring the stream on
       // abort, as a real fetch does.
-      const createStalledBodyFetch = (onResponse?: () => void) =>
+      const createStalledBodyFetch = (onResponse?: () => void, status = 200) =>
         vi.fn<FetchFn>((_url, init) => {
           const signal = init?.signal as AbortSignal;
           const stream = new ReadableStream<Uint8Array>({
@@ -755,6 +684,24 @@ describe('ProtoPediaApiClient', () => {
             },
           });
           onResponse?.();
+          return Promise.resolve(
+            new Response(stream, {
+              status,
+              headers: { 'Content-Type': 'application/json' },
+            }),
+          );
+        });
+
+      const createSlowBodyFetch = (delayMs: number) =>
+        vi.fn<FetchFn>(() => {
+          const stream = new ReadableStream<Uint8Array>({
+            start(controller) {
+              setTimeout(() => {
+                controller.enqueue(new TextEncoder().encode('{"results":[]}'));
+                controller.close();
+              }, delayMs);
+            },
+          });
           return Promise.resolve(new Response(stream, { status: 200 }));
         });
 
@@ -802,28 +749,267 @@ describe('ProtoPediaApiClient', () => {
         ).rejects.toBe(reason);
       });
 
-      it('does not apply timeoutMs to the body read', async () => {
-        const fetchMock = vi.fn<FetchFn>(() => {
-          const stream = new ReadableStream<Uint8Array>({
-            start(controller) {
-              setTimeout(() => {
-                controller.enqueue(new TextEncoder().encode('{"results":[]}'));
-                controller.close();
-              }, 50);
-            },
-          });
-          return Promise.resolve(new Response(stream, { status: 200 }));
+      it('rejects listPrototypes with TimeoutError when timeoutMs expires', async () => {
+        const { logger, error } = createTestLogger();
+        const client = new ProtoPediaApiClient({
+          token: 't',
+          baseUrl: BASE_URL,
+          fetch: createStalledBodyFetch(),
+          timeoutMs: 10,
+          logger,
+          logLevel: 'error',
         });
+
+        await expect(client.listPrototypes()).rejects.toMatchObject({
+          name: 'TimeoutError',
+          message: 'Request timed out after 10 ms',
+        });
+        expect(error).toHaveBeenCalledWith(
+          'HTTP request timed out',
+          expect.objectContaining({ method: 'GET' }),
+        );
+      });
+
+      it('rejects downloadPrototypesTsv with TimeoutError when timeoutMs expires', async () => {
+        const client = new ProtoPediaApiClient({
+          token: 't',
+          baseUrl: BASE_URL,
+          fetch: createStalledBodyFetch(),
+          timeoutMs: 10,
+          logLevel: 'silent',
+        });
+
+        await expect(client.downloadPrototypesTsv()).rejects.toMatchObject({
+          name: 'TimeoutError',
+        });
+      });
+
+      it('succeeds when the body arrives within timeoutMs', async () => {
+        const fetchMock = createSlowBodyFetch(10);
         const client = new ProtoPediaApiClient({
           token: 't',
           baseUrl: BASE_URL,
           fetch: fetchMock,
-          timeoutMs: 10,
+          timeoutMs: 1_000,
           logLevel: 'silent',
         });
 
         await expect(client.listPrototypes()).resolves.toEqual({
           results: [],
+        });
+      });
+
+      it('does not limit the body read when timeoutMs is 0', async () => {
+        const client = new ProtoPediaApiClient({
+          token: 't',
+          baseUrl: BASE_URL,
+          fetch: createSlowBodyFetch(30),
+          timeoutMs: 0,
+          logLevel: 'silent',
+        });
+
+        await expect(client.listPrototypes()).resolves.toEqual({
+          results: [],
+        });
+      });
+
+      it('leaves no timer running after the call finishes', async () => {
+        vi.useFakeTimers();
+        try {
+          const client = new ProtoPediaApiClient({
+            token: 't',
+            baseUrl: BASE_URL,
+            fetch: vi.fn<FetchFn>(() =>
+              Promise.resolve(new Response('{"results":[]}', { status: 200 })),
+            ),
+            timeoutMs: 1_000,
+            logLevel: 'silent',
+          });
+
+          await client.listPrototypes();
+
+          expect(vi.getTimerCount()).toBe(0);
+        } finally {
+          vi.useRealTimers();
+        }
+      });
+
+      it('leaves no timer running after a failed call', async () => {
+        vi.useFakeTimers();
+        try {
+          const client = new ProtoPediaApiClient({
+            token: 't',
+            baseUrl: BASE_URL,
+            fetch: vi.fn<FetchFn>(() =>
+              Promise.reject(new TypeError('fetch failed')),
+            ),
+            timeoutMs: 1_000,
+            logLevel: 'silent',
+          });
+
+          await expect(client.listPrototypes()).rejects.toThrow('fetch failed');
+
+          expect(vi.getTimerCount()).toBe(0);
+        } finally {
+          vi.useRealTimers();
+        }
+      });
+
+      it('stops the timer before parsing JSON', async () => {
+        vi.useFakeTimers();
+        const timerCounts: number[] = [];
+        const realParse = JSON.parse;
+        const parseSpy = vi
+          .spyOn(JSON, 'parse')
+          .mockImplementation((...args: Parameters<typeof JSON.parse>) => {
+            timerCounts.push(vi.getTimerCount());
+            return realParse(...args) as unknown;
+          });
+        try {
+          const client = new ProtoPediaApiClient({
+            token: 't',
+            baseUrl: BASE_URL,
+            fetch: vi.fn<FetchFn>(() =>
+              Promise.resolve(new Response('{"results":[]}', { status: 200 })),
+            ),
+            timeoutMs: 1_000,
+            logLevel: 'silent',
+          });
+
+          await client.listPrototypes();
+
+          expect(timerCounts).toEqual([0]);
+        } finally {
+          parseSpy.mockRestore();
+          vi.useRealTimers();
+        }
+      });
+
+      it('logs the received body size without the body', async () => {
+        const { logger, debug } = createTestLogger();
+        const client = new ProtoPediaApiClient({
+          token: 't',
+          baseUrl: BASE_URL,
+          fetch: vi.fn<FetchFn>(() =>
+            Promise.resolve(new Response('{"results":[]}', { status: 200 })),
+          ),
+          logger,
+          logLevel: 'debug',
+        });
+
+        await client.listPrototypes();
+
+        expect(debug).toHaveBeenCalledWith('HTTP response body received', {
+          method: 'GET',
+          url: expect.stringContaining('/prototype/list') as string,
+          status: 200,
+          length: 14,
+        });
+      });
+
+      it('rethrows a runtime failure with its cause and logs it', async () => {
+        // Node.js fetch fails like this when undici gives up on the body.
+        const runtimeError = new TypeError('terminated', {
+          cause: Object.assign(new Error('Body Timeout Error'), {
+            code: 'UND_ERR_BODY_TIMEOUT',
+          }),
+        });
+        const stream = new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.error(runtimeError);
+          },
+        });
+        const { logger, error } = createTestLogger();
+        const client = new ProtoPediaApiClient({
+          token: 't',
+          baseUrl: BASE_URL,
+          fetch: vi.fn<FetchFn>(() =>
+            Promise.resolve(new Response(stream, { status: 200 })),
+          ),
+          timeoutMs: 1_000,
+          logger,
+          logLevel: 'error',
+        });
+
+        await expect(client.listPrototypes()).rejects.toBe(runtimeError);
+        expect(error).toHaveBeenCalledWith(
+          'HTTP request threw an unexpected error',
+          expect.objectContaining({ error: runtimeError }),
+        );
+      });
+
+      describe('of an error response', () => {
+        it('rejects with TimeoutError when timeoutMs expires', async () => {
+          const { logger, error } = createTestLogger();
+          const client = new ProtoPediaApiClient({
+            token: 't',
+            baseUrl: BASE_URL,
+            fetch: createStalledBodyFetch(undefined, 500),
+            timeoutMs: 10,
+            logger,
+            logLevel: 'error',
+          });
+
+          await expect(client.listPrototypes()).rejects.toMatchObject({
+            name: 'TimeoutError',
+          });
+          expect(error).toHaveBeenCalledWith(
+            'HTTP request timed out',
+            expect.anything(),
+          );
+          expect(error).not.toHaveBeenCalledWith(
+            'API request failed',
+            expect.anything(),
+          );
+        });
+
+        it('rejects with the abort reason when the caller aborts', async () => {
+          const controller = new AbortController();
+          const reason = new Error('caller-aborted');
+          const { logger, warn } = createTestLogger();
+          const client = new ProtoPediaApiClient({
+            token: 't',
+            baseUrl: BASE_URL,
+            fetch: createStalledBodyFetch(() => {
+              setTimeout(() => controller.abort(reason), 0);
+            }, 500),
+            timeoutMs: 0,
+            logger,
+            logLevel: 'warn',
+          });
+
+          await expect(
+            client.listPrototypes(undefined, { signal: controller.signal }),
+          ).rejects.toBe(reason);
+          expect(warn).toHaveBeenCalledWith(
+            'HTTP request aborted by caller',
+            expect.anything(),
+          );
+        });
+
+        it('rethrows a read failure with its cause and logs it', async () => {
+          const readError = new TypeError('terminated');
+          const stream = new ReadableStream<Uint8Array>({
+            start(controller) {
+              controller.error(readError);
+            },
+          });
+          const { logger, error } = createTestLogger();
+          const client = new ProtoPediaApiClient({
+            token: 't',
+            baseUrl: BASE_URL,
+            fetch: vi.fn<FetchFn>(() =>
+              Promise.resolve(new Response(stream, { status: 500 })),
+            ),
+            logger,
+            logLevel: 'error',
+          });
+
+          await expect(client.listPrototypes()).rejects.toBe(readError);
+          expect(error).toHaveBeenCalledWith(
+            'HTTP request threw an unexpected error',
+            expect.objectContaining({ error: readError }),
+          );
         });
       });
 
@@ -902,7 +1088,7 @@ describe('ProtoPediaApiClient', () => {
         );
 
         await expect(client.listPrototypes()).rejects.toMatchObject({
-          name: 'AbortError',
+          name: 'TimeoutError',
         });
         expect(error).toHaveBeenCalledWith(
           'HTTP request timed out',
@@ -956,6 +1142,69 @@ describe('ProtoPediaApiClient', () => {
           'HTTP request timed out',
           expect.anything(),
         );
+      });
+
+      it('throws TimeoutError when fetch rejects with a non-DOMException AbortError', async () => {
+        const abortError = Object.assign(
+          new Error('The user aborted a request.'),
+          {
+            name: 'AbortError',
+          },
+        );
+        const { logger, error } = createTestLogger();
+        const client = new ProtoPediaApiClient({
+          token: 't',
+          baseUrl: BASE_URL,
+          fetch: vi.fn<FetchFn>(
+            (_url, init) =>
+              new Promise((_resolve, reject) => {
+                init?.signal?.addEventListener('abort', () => {
+                  reject(abortError);
+                });
+              }),
+          ),
+          timeoutMs: 10,
+          logger,
+          logLevel: 'error',
+        });
+
+        await expect(client.listPrototypes()).rejects.toMatchObject({
+          name: 'TimeoutError',
+        });
+        expect(error).toHaveBeenCalledWith(
+          'HTTP request timed out',
+          expect.anything(),
+        );
+      });
+
+      it('throws the abort reason when fetch rejects with a non-DOMException AbortError', async () => {
+        const controller = new AbortController();
+        const reason = new Error('caller-aborted');
+        const abortError = Object.assign(
+          new Error('The user aborted a request.'),
+          {
+            name: 'AbortError',
+          },
+        );
+        const client = new ProtoPediaApiClient({
+          token: 't',
+          baseUrl: BASE_URL,
+          fetch: vi.fn<FetchFn>(
+            (_url, init) =>
+              new Promise((_resolve, reject) => {
+                init?.signal?.addEventListener('abort', () => {
+                  reject(abortError);
+                });
+                controller.abort(reason);
+              }),
+          ),
+          timeoutMs: 0,
+          logLevel: 'silent',
+        });
+
+        await expect(
+          client.listPrototypes(undefined, { signal: controller.signal }),
+        ).rejects.toBe(reason);
       });
 
       it('logs a generic AbortError not caused by caller or timeout as aborted', async () => {

@@ -45,7 +45,7 @@ export interface ProtoPediaApiRequestOptions {
 
 const DEFAULT_USER_AGENT = `ProtoPedia API Ver 2.0 Node.js Client/${VERSION}`;
 const DEFAULT_BASE_URL = 'https://protopedia.net/v2/api';
-const DEFAULT_TIMEOUT_MS = 15_000;
+const DEFAULT_TIMEOUT_MS = 60_000;
 
 type FetchFn = typeof fetch;
 
@@ -105,7 +105,7 @@ export class ProtoPediaApiClient {
       serializeListPrototypeParams(params),
     );
     const method = 'GET';
-    const payload = (await this.execute(
+    const { response, text } = await this.execute(
       url,
       {
         method,
@@ -115,8 +115,15 @@ export class ProtoPediaApiClient {
       },
       requestOptions,
       logLevelValue,
-      (response) => parseJson(response, method, 'listPrototype'),
-    )) as ListPrototypesApiResponse;
+    );
+
+    const payload = this.parseJson(
+      response,
+      text,
+      method,
+      'listPrototype',
+      logLevelValue,
+    ) as ListPrototypesApiResponse;
     this.log('debug', 'listPrototype response payload', payload, logLevelValue);
     return payload;
   }
@@ -136,7 +143,7 @@ export class ProtoPediaApiClient {
       serializeListPrototypeParams(params),
     );
     const method = 'GET';
-    const text = await this.execute(
+    const { text } = await this.execute(
       url,
       {
         method,
@@ -146,8 +153,8 @@ export class ProtoPediaApiClient {
       },
       requestOptions,
       logLevelValue,
-      (response) => response.text(),
     );
+
     this.log(
       'debug',
       'downloadPrototypesTsv response payload',
@@ -158,19 +165,18 @@ export class ProtoPediaApiClient {
   }
 
   /**
-   * Performs the HTTP request, reads the response with `readBody`, and wraps
-   * common logging and error handling.
+   * Performs the HTTP request, receives the whole response, and wraps common
+   * logging and error handling.
    *
-   * `timeoutMs` stops applying once the response is received, but the caller's
-   * signal keeps applying until `readBody` settles.
+   * `timeoutMs` and the caller's signal apply until the response body has been
+   * received.
    */
-  private async execute<T>(
+  private async execute(
     url: string,
     options: ExecuteOptions,
     requestOptions: ProtoPediaApiRequestOptions | undefined,
     logLevelValue: number,
-    readBody: (response: Response) => Promise<T>,
-  ): Promise<T> {
+  ): Promise<{ response: Response; text: string }> {
     const { method } = options;
     const headers = mergeHeaders(
       this.token ? { Authorization: `Bearer ${this.token}` } : undefined,
@@ -179,7 +185,7 @@ export class ProtoPediaApiClient {
       requestOptions?.headers,
     );
 
-    const { signal, stopTimeout, cleanup, isTimedOut } = this.createAbortSignal(
+    const { signal, cleanup, isTimedOut } = this.createAbortSignal(
       requestOptions?.signal,
     );
 
@@ -212,14 +218,26 @@ export class ProtoPediaApiClient {
         },
         logLevelValue,
       );
+      // Receive the whole body first so that read failures, including timeouts
+      // and aborts, reach the catch block below for any response status.
+      const text = await response.text();
+      this.log(
+        'debug',
+        'HTTP response body received',
+        {
+          method,
+          url,
+          status: response.status,
+          length: text.length,
+        },
+        logLevelValue,
+      );
       if (!response.ok) {
-        const apiError = await buildError(response, method);
+        const apiError = buildError(response, text, method);
         this.log('error', 'API request failed', apiError, logLevelValue);
         throw apiError;
       }
-      stopTimeout();
-      // `await` keeps the caller's signal and this catch block active.
-      return await readBody(response);
+      return { response, text };
     } catch (error) {
       if (error instanceof ProtoPediaApiError) {
         throw error;
@@ -259,7 +277,10 @@ export class ProtoPediaApiClient {
           },
           logLevelValue,
         );
-      } else if (isAbortError(error)) {
+        // Some fetch implementations reject with a generic AbortError.
+        throw signal.reason;
+      }
+      if (isAbortError(error)) {
         this.log(
           'warn',
           'HTTP request aborted',
@@ -300,9 +321,40 @@ export class ProtoPediaApiClient {
     return url.toString();
   }
 
+  private parseJson(
+    response: Response,
+    text: string,
+    method: string,
+    context: string,
+    logLevelValue: number,
+  ): unknown {
+    try {
+      return JSON.parse(text);
+    } catch (error) {
+      const message = `Failed to parse ${context} response as JSON`;
+      this.log(
+        'error',
+        message,
+        { method, url: response.url, status: response.status },
+        logLevelValue,
+      );
+      throw new ProtoPediaApiError({
+        message,
+        req: {
+          method,
+          url: response.url,
+        },
+        status: response.status,
+        statusText: response.statusText,
+        headers: headersToPlainObject(response.headers),
+        body: text,
+        cause: error,
+      });
+    }
+  }
+
   private createAbortSignal(signal?: AbortSignal): {
     signal: AbortSignal;
-    stopTimeout: () => void;
     cleanup: () => void;
     /** True when the signal was aborted by this client's own timeout. */
     isTimedOut: () => boolean;
@@ -331,14 +383,10 @@ export class ProtoPediaApiClient {
       }
     }
 
-    const stopTimeout = () => {
+    const cleanup = () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
-    };
-
-    const cleanup = () => {
-      stopTimeout();
       if (signal && abortListener) {
         signal.removeEventListener('abort', abortListener);
       }
@@ -347,7 +395,7 @@ export class ProtoPediaApiClient {
     const isTimedOut = () =>
       timeoutError !== undefined && controller.signal.reason === timeoutError;
 
-    return { signal: controller.signal, stopTimeout, cleanup, isTimedOut };
+    return { signal: controller.signal, cleanup, isTimedOut };
   }
 
   private log(
@@ -393,63 +441,20 @@ export function createProtoPediaClient(
   return new ProtoPediaApiClient(options);
 }
 
-async function parseJson(
+function buildError(
   response: Response,
+  text: string,
   method: string,
-  context: string,
-): Promise<unknown> {
-  // Read before parsing: the body can be read only once, and read failures
-  // (e.g. an abort or a network error) must propagate unchanged.
-  const text = await response.text();
-  try {
-    return JSON.parse(text);
-  } catch (error) {
-    throw new ProtoPediaApiError({
-      message: `Failed to parse ${context} response as JSON`,
-      req: {
-        method,
-        url: response.url,
-      },
-      status: response.status,
-      statusText: response.statusText,
-      headers: headersToPlainObject(response.headers),
-      body: text,
-      cause: error,
-    });
-  }
-}
+): ProtoPediaApiError {
+  let body: unknown = text;
 
-async function buildError(
-  response: Response,
-  method: string,
-): Promise<ProtoPediaApiError> {
-  let body: unknown;
-
-  // Prefer JSON when content-type hints JSON; otherwise text. Use clone() to
-  // avoid consuming the body twice and causing "Body has already been read".
+  // Prefer JSON when content-type hints JSON; otherwise keep the text.
   const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
   if (contentType.includes('application/json')) {
     try {
-      const copy = response.clone();
-      body = await copy.json();
+      body = JSON.parse(text);
     } catch {
-      try {
-        body = await response.text();
-      } catch (readError) {
-        body = { parseError: (readError as Error).message };
-      }
-    }
-  } else {
-    try {
-      body = await response.text();
-    } catch (textError) {
-      try {
-        // As a last resort, try JSON on the original response without cloning
-        // to support minimal mock Response objects in tests.
-        body = await (response as Response).json();
-      } catch {
-        body = { parseError: (textError as Error).message };
-      }
+      // Keep the received text as the error body.
     }
   }
 
