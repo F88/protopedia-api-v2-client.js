@@ -975,6 +975,104 @@ describe('ProtoPediaApiClient', () => {
         );
       });
 
+      describe('when the fetch implementation replaces the abort reason', () => {
+        // Chrome rejects text() with this error when the body is a JavaScript
+        // stream, even if the stream was errored with the abort reason.
+        const createReplacingFetch = (status = 200, onResponse?: () => void) =>
+          vi.fn<FetchFn>((_url, init) => {
+            const signal = init?.signal as AbortSignal;
+            onResponse?.();
+            return Promise.resolve({
+              ok: status < 400,
+              status,
+              statusText: '',
+              url: BASE_URL,
+              headers: new Headers(),
+              text: () =>
+                new Promise((_resolve, reject) => {
+                  const fail = () => reject(new TypeError('Failed to fetch'));
+                  if (signal.aborted) {
+                    fail();
+                    return;
+                  }
+                  signal.addEventListener('abort', fail, { once: true });
+                }),
+            } as unknown as Response);
+          });
+
+        it('rejects with TimeoutError when timeoutMs expires', async () => {
+          const { logger, error } = createTestLogger();
+          const client = new ProtoPediaApiClient({
+            token: 't',
+            baseUrl: BASE_URL,
+            fetch: createReplacingFetch(),
+            timeoutMs: 10,
+            logger,
+            logLevel: 'error',
+          });
+
+          await expect(client.listPrototypes()).rejects.toMatchObject({
+            name: 'TimeoutError',
+          });
+          expect(error).toHaveBeenCalledWith(
+            'HTTP request timed out',
+            expect.anything(),
+          );
+        });
+
+        it('rejects with the abort reason when the caller aborts', async () => {
+          const controller = new AbortController();
+          const reason = new Error('caller-aborted');
+          const { logger, warn } = createTestLogger();
+          const client = new ProtoPediaApiClient({
+            token: 't',
+            baseUrl: BASE_URL,
+            fetch: createReplacingFetch(200, () => {
+              setTimeout(() => controller.abort(reason), 0);
+            }),
+            timeoutMs: 0,
+            logger,
+            logLevel: 'warn',
+          });
+
+          await expect(
+            client.listPrototypes(undefined, { signal: controller.signal }),
+          ).rejects.toBe(reason);
+          expect(warn).toHaveBeenCalledWith(
+            'HTTP request aborted by caller',
+            expect.anything(),
+          );
+        });
+
+        it('rejects with TimeoutError for an error response', async () => {
+          const client = new ProtoPediaApiClient({
+            token: 't',
+            baseUrl: BASE_URL,
+            fetch: createReplacingFetch(503),
+            timeoutMs: 10,
+            logLevel: 'silent',
+          });
+
+          await expect(client.listPrototypes()).rejects.toMatchObject({
+            name: 'TimeoutError',
+          });
+        });
+
+        it('rejects with TimeoutError for downloadPrototypesTsv', async () => {
+          const client = new ProtoPediaApiClient({
+            token: 't',
+            baseUrl: BASE_URL,
+            fetch: createReplacingFetch(),
+            timeoutMs: 10,
+            logLevel: 'silent',
+          });
+
+          await expect(client.downloadPrototypesTsv()).rejects.toMatchObject({
+            name: 'TimeoutError',
+          });
+        });
+      });
+
       describe('of an error response', () => {
         it('rejects with TimeoutError when timeoutMs expires', async () => {
           const { logger, error } = createTestLogger();

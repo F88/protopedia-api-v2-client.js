@@ -226,7 +226,11 @@ export class ProtoPediaApiClient {
       try {
         text = await response.text();
       } catch (readError) {
-        if (response.ok || signal.aborted) {
+        // Some fetch implementations replace the abort reason here.
+        if (signal.aborted) {
+          throw signal.reason;
+        }
+        if (response.ok) {
           throw readError;
         }
         // The server already sent an error status, so keep it.

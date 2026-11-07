@@ -187,7 +187,7 @@ const client = createProtoPediaClient({
 ## Timeouts and Abort
 
 - `timeoutMs` is the maximum time from the start of a request until the response is received, including the response body. Converting the response to JSON is not included. The default is `60000 ms`
-- If the time runs out, the call fails with a `DOMException` named `TimeoutError`. If `fetch` fails with a different error at that moment, such as a network error, that error is thrown as is. Set a larger value for large downloads or slow networks
+- If the time runs out, the call fails with a `DOMException` named `TimeoutError`. If `fetch` itself fails with a different error at that moment, such as a network error, that error is thrown as is. Set a larger value for large downloads or slow networks
 - The ProtoPedia API can take several seconds to respond, even for a small request. Avoid setting a very short `timeoutMs`
 - `timeoutMs: 0` disables the SDK timer. Invalid values, such as a negative number or `Infinity`, fall back to the default
 - Pass an `AbortSignal` per request to cancel it at any time. The call fails with the reason passed to `abort()`, or an `AbortError` if there is none
