@@ -466,7 +466,7 @@ describe('ProtoPediaApiClient', () => {
       );
     });
 
-    it('builds headers including X-Client-User-Agent and allows override per request', async () => {
+    it('builds headers including User-Agent and allows override per request', async () => {
       const fetchMock = vi.fn<FetchFn>(() =>
         Promise.resolve(createJsonResponse(SAMPLE_API_RESPONSE)),
       );
@@ -485,7 +485,7 @@ describe('ProtoPediaApiClient', () => {
         { tagNm: 'ua' },
         {
           headers: {
-            'X-Client-User-Agent': 'Override-UA/2.0',
+            'User-Agent': 'Override-UA/2.0',
           },
         },
       );
@@ -497,7 +497,7 @@ describe('ProtoPediaApiClient', () => {
       const [, init] = call;
       const headers = new Headers(init?.headers ?? {});
       // Request option should override client-configured UA header
-      expect(headers.get('X-Client-User-Agent')).toBe('Override-UA/2.0');
+      expect(headers.get('User-Agent')).toBe('Override-UA/2.0');
       expect(headers.get('Authorization')).toBe('Bearer token-123');
     });
 

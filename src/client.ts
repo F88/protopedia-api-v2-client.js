@@ -18,7 +18,6 @@ import {
   type LoggerMethodLevel,
   type LogLevel,
 } from './logger.js';
-import { VERSION } from './version.js';
 
 import type { ListPrototypesParams } from './types/protopedia-api-v2/request.js';
 import type { ListPrototypesApiResponse } from './types/protopedia-api-v2/response.js';
@@ -27,6 +26,11 @@ export interface ProtoPediaApiClientOptions {
   token?: string;
   baseUrl?: string;
   fetch?: typeof fetch;
+  /**
+   * Sent as the `User-Agent` header. Not set by default.
+   *
+   * Browsers may block a request that sets it, because of CORS.
+   */
   userAgent?: string;
   timeoutMs?: number;
   logger?: Logger;
@@ -43,7 +47,6 @@ export interface ProtoPediaApiRequestOptions {
   logLevel?: LogLevel;
 }
 
-const DEFAULT_USER_AGENT = `ProtoPedia API Ver 2.0 Node.js Client/${VERSION}`;
 const DEFAULT_BASE_URL = 'https://protopedia.net/v2/api';
 const DEFAULT_TIMEOUT_MS = 60_000;
 
@@ -84,7 +87,7 @@ export class ProtoPediaApiClient {
     this.token = options.token;
     this.baseUrl = trimTrailingSlash(options.baseUrl ?? DEFAULT_BASE_URL);
     this.timeoutMs = toTimeout(options.timeoutMs, DEFAULT_TIMEOUT_MS);
-    this.userAgent = options.userAgent ?? DEFAULT_USER_AGENT;
+    this.userAgent = options.userAgent;
 
     const loggerConfig = createLoggerConfig(options.logger, options.logLevel);
     this.logger = loggerConfig.logger;
@@ -182,7 +185,7 @@ export class ProtoPediaApiClient {
     const { method } = options;
     const headers = mergeHeaders(
       this.token ? { Authorization: `Bearer ${this.token}` } : undefined,
-      this.userAgent ? { 'X-Client-User-Agent': this.userAgent } : undefined,
+      this.userAgent ? { 'User-Agent': this.userAgent } : undefined,
       options.headers,
       requestOptions?.headers,
     );
