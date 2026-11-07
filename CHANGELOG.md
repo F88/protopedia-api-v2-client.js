@@ -1,6 +1,6 @@
 # protopedia-api-v2-client.js
 
-## Unreleased
+## 5.2.0 - 2026-11-08
 
 ### Added
 
