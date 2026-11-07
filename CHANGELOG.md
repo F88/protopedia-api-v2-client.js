@@ -1,5 +1,11 @@
 # protopedia-api-v2-client.js
 
+## Unreleased
+
+### Fixed
+
+- `fetch` is no longer called with the client as `this`, which failed with `Illegal invocation` in some `fetch` implementations when the `fetch` option was not passed. The supported environments do not change
+
 ## 5.0.0 - 2026-11-06
 
 ### BREAKING CHANGES
