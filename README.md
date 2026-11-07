@@ -69,15 +69,15 @@ const client = createProtoPediaClient({
 
 ### Client options
 
-| Option      | Default                                           | Description                                                                                                                                              |
-| ----------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `token`     | (required)                                        | API token, sent as `Authorization: Bearer <token>`                                                                                                       |
-| `baseUrl`   | `https://protopedia.net/v2/api`                   | Base URL of the API                                                                                                                                      |
-| `fetch`     | `globalThis.fetch`                                | Custom `fetch` implementation (must honor `init.signal`)                                                                                                 |
-| `userAgent` | `ProtoPedia API Ver 2.0 Node.js Client/<version>` | Sent as the `X-Client-User-Agent` header                                                                                                                 |
-| `timeoutMs` | `60000`                                           | Maximum time in milliseconds from the start of a request until the response is received (`0` disables it). See [Timeouts and Abort](#timeouts-and-abort) |
-| `logger`    | `console`                                         | Custom logger. See [Logging](#logging)                                                                                                                   |
-| `logLevel`  | `error`                                           | Log level. See [Logging](#logging)                                                                                                                       |
+| Option      | Default                         | Description                                                                                                                                              |
+| ----------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `token`     | (required)                      | API token, sent as `Authorization: Bearer <token>`                                                                                                       |
+| `baseUrl`   | `https://protopedia.net/v2/api` | Base URL of the API                                                                                                                                      |
+| `fetch`     | `globalThis.fetch`              | Custom `fetch` implementation (must honor `init.signal`)                                                                                                 |
+| `userAgent` | none                            | Sent as the `User-Agent` header. Browsers may block a request that sets it, because of CORS                                                              |
+| `timeoutMs` | `60000`                         | Maximum time in milliseconds from the start of a request until the response is received (`0` disables it). See [Timeouts and Abort](#timeouts-and-abort) |
+| `logger`    | `console`                       | Custom logger. See [Logging](#logging)                                                                                                                   |
+| `logLevel`  | `error`                         | Log level. See [Logging](#logging)                                                                                                                       |
 
 ## Usage
 

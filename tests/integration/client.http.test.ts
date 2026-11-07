@@ -132,7 +132,7 @@ describe('ProtoPediaApiClient (integration)', () => {
     expect(url.searchParams.get('limit')).toBe('1');
   });
 
-  it('sends required headers (Accept and X-Client-User-Agent)', async () => {
+  it('sends the Accept header and does not name the client by default', async () => {
     let capturedRequest: Request | undefined;
 
     server.use(
@@ -150,9 +150,10 @@ describe('ProtoPediaApiClient (integration)', () => {
       throw new Error('MSW handler did not capture a request');
     }
     expect(capturedRequest.headers.get('accept')).toBe('application/json');
-    const ua = capturedRequest.headers.get('x-client-user-agent');
-    expect(ua).toBeTruthy();
-    expect(ua?.includes('ProtoPedia API Ver 2.0 Node.js Client/')).toBe(true);
+    expect(capturedRequest.headers.get('x-client-user-agent')).toBeNull();
+    expect(capturedRequest.headers.get('user-agent')).not.toContain(
+      'ProtoPedia',
+    );
   });
 
   it('downloads TSV from /prototype/list/tsv and returns plain text', async () => {
@@ -178,7 +179,6 @@ describe('ProtoPediaApiClient (integration)', () => {
     expect(url.pathname).toBe('/api/v2/prototype/list/tsv');
     // Headers check for TSV request
     expect(capturedRequest.headers.get('accept')).toBe('application/json');
-    expect(capturedRequest.headers.get('x-client-user-agent')).toBeTruthy();
   });
 
   it('merges caller-provided headers with client headers (and allows override)', async () => {
@@ -202,7 +202,6 @@ describe('ProtoPediaApiClient (integration)', () => {
 
     if (!capturedRequest) throw new Error('no request captured');
     expect(capturedRequest.headers.get('authorization')).toBe('Bearer t');
-    expect(capturedRequest.headers.get('x-client-user-agent')).toBeTruthy();
     expect(capturedRequest.headers.get('x-extra')).toBe('1');
     expect(capturedRequest.headers.get('accept')).toBe('application/json; q=1');
   });
@@ -236,7 +235,7 @@ describe('ProtoPediaApiClient (integration)', () => {
     expect(pathB).toBe('/api/v2/prototype/list');
   });
 
-  it('overrides X-Client-User-Agent when userAgent is provided', async () => {
+  it('sends userAgent as the User-Agent header when provided', async () => {
     let capturedRequest: Request | undefined;
     server.use(
       createListPrototypesHandler({ onRequest: (r) => (capturedRequest = r) }),
@@ -250,9 +249,8 @@ describe('ProtoPediaApiClient (integration)', () => {
     await client.listPrototypes({ limit: 1 });
 
     if (!capturedRequest) throw new Error('no request captured');
-    expect(capturedRequest.headers.get('x-client-user-agent')).toBe(
-      'CustomUA/1.0',
-    );
+    expect(capturedRequest.headers.get('user-agent')).toBe('CustomUA/1.0');
+    expect(capturedRequest.headers.get('x-client-user-agent')).toBeNull();
   });
 
   it('handles 500 with HTML body on TSV endpoint and surfaces string body', async () => {

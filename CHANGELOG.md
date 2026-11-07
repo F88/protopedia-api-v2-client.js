@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Changed
+
+- The `X-Client-User-Agent` header is no longer sent, because the CORS configuration of ProtoPedia API Ver 2.0 does not allow it
+- The `userAgent` option is now sent as the standard `User-Agent` header, only when it is specified. No client name is sent by default
+
 ### Fixed
 
 - `fetch` is no longer called with the client as `this`, which failed with `Illegal invocation` in some `fetch` implementations when the `fetch` option was not passed. The supported environments do not change
