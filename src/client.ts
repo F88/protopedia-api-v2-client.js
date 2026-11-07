@@ -78,7 +78,9 @@ export class ProtoPediaApiClient {
       );
     }
 
-    this.fetchFn = fetchFn;
+    // Calling fetch as a method of this client would pass the client as `this`,
+    // which some fetch implementations reject with "Illegal invocation".
+    this.fetchFn = (input, init) => fetchFn(input, init);
     this.token = options.token;
     this.baseUrl = trimTrailingSlash(options.baseUrl ?? DEFAULT_BASE_URL);
     this.timeoutMs = toTimeout(options.timeoutMs, DEFAULT_TIMEOUT_MS);

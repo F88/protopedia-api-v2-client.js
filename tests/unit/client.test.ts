@@ -91,13 +91,50 @@ describe('ProtoPediaApiClient', () => {
     it('sets default values for optional parameters', () => {
       const client = new ProtoPediaApiClient({});
 
-      expect(client['fetchFn']).toBe(globalThis.fetch);
       expect(client['token']).toBeUndefined();
       expect(client['baseUrl']).toBe('https://protopedia.net/v2/api');
       expect(client['timeoutMs']).toBe(60_000);
       expect(client['logger']).toBeDefined();
       expect(client['logLevel']).toBe('error');
       expect(client['logLevelValue']).toBe(0);
+    });
+
+    it('calls the default fetch without the client as this', async () => {
+      const thisValues: unknown[] = [];
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(function (this: unknown) {
+          thisValues.push(this);
+          return Promise.resolve(new Response('{"results":[]}'));
+        }),
+      );
+      try {
+        const client = new ProtoPediaApiClient({ logLevel: 'silent' });
+
+        await client.listPrototypes();
+
+        expect(thisValues).toHaveLength(1);
+        expect(thisValues[0]).not.toBe(client);
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    });
+
+    it('calls a custom fetch without the client as this', async () => {
+      const thisValues: unknown[] = [];
+      const fetchMock = vi.fn(function (this: unknown) {
+        thisValues.push(this);
+        return Promise.resolve(new Response('{"results":[]}'));
+      }) as unknown as FetchFn;
+      const client = new ProtoPediaApiClient({
+        fetch: fetchMock,
+        logLevel: 'silent',
+      });
+
+      await client.listPrototypes();
+
+      expect(thisValues).toHaveLength(1);
+      expect(thisValues[0]).not.toBe(client);
     });
 
     it('throws when no fetch implementation is available', () => {
