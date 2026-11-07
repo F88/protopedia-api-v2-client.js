@@ -1,5 +1,15 @@
 # protopedia-api-v2-client.js
 
+## Unreleased
+
+### Added
+
+- `ResponseBodyReadError`: thrown when reading the body of a successful response fails and the request was not aborted. The original error is in `cause`
+
+### Changed
+
+- A failed read of a successful response body now throws `ResponseBodyReadError` instead of the original error, which differed by runtime. Code that catches `TypeError` from such a failure no longer matches it. Timeouts, caller aborts, and error statuses are unchanged
+
 ## 5.1.0 - 2026-11-07
 
 ### Changed

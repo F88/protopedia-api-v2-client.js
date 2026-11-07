@@ -4,7 +4,7 @@ import {
   createProtoPediaClient,
   ProtoPediaApiClient,
 } from '../../src/client.js';
-import { ProtoPediaApiError } from '../../src/errors.js';
+import { ProtoPediaApiError, ResponseBodyReadError } from '../../src/errors.js';
 import type { Logger } from '../../src/logger.js';
 
 type FetchFn = typeof fetch;
@@ -440,31 +440,45 @@ describe('ProtoPediaApiClient', () => {
       expect(JSON.stringify(error.mock.calls)).not.toContain('not-json');
     });
 
-    it('rethrows the original error when reading the response body fails', async () => {
-      const readError = new Error('body read failed');
-      const stream = new ReadableStream<Uint8Array>({
-        start(controller) {
-          controller.enqueue(new TextEncoder().encode('{"results":['));
-          controller.error(readError);
-        },
-      });
-      const fetchMock = vi.fn<FetchFn>(() =>
-        Promise.resolve(new Response(stream, { status: 200 })),
-      );
-      const { logger } = createTestLogger();
+    it.each([
+      ['a generic error', new Error('body read failed')],
+      // Firefox does this for a body wrapped in a JavaScript stream.
+      ['an AbortError', new DOMException('Aborted', 'AbortError')],
+    ])(
+      'throws ResponseBodyReadError when the body read fails with %s',
+      async (_name, readError) => {
+        const stream = new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new TextEncoder().encode('{"results":['));
+            controller.error(readError);
+          },
+        });
+        const fetchMock = vi.fn<FetchFn>(() =>
+          Promise.resolve(new Response(stream, { status: 200 })),
+        );
+        const { logger } = createTestLogger();
 
-      const client = new ProtoPediaApiClient({
-        token: 'token-123',
-        baseUrl: BASE_URL,
-        fetch: fetchMock,
-        logger,
-        logLevel: 'silent',
-      });
+        const client = new ProtoPediaApiClient({
+          token: 'token-123',
+          baseUrl: BASE_URL,
+          fetch: fetchMock,
+          logger,
+          logLevel: 'silent',
+        });
 
-      await expect(client.listPrototypes({ tagNm: 'x' })).rejects.toBe(
-        readError,
-      );
-    });
+        const error = await client
+          .listPrototypes({ tagNm: 'x' })
+          .catch((e: unknown) => e);
+
+        expect(error).toBeInstanceOf(ResponseBodyReadError);
+        expect(error).toMatchObject({
+          name: 'ResponseBodyReadError',
+          message: 'Failed to read the response body',
+          req: { method: 'GET' },
+          cause: readError,
+        });
+      },
+    );
 
     it('builds headers including User-Agent and allows override per request', async () => {
       const fetchMock = vi.fn<FetchFn>(() =>
@@ -944,7 +958,7 @@ describe('ProtoPediaApiClient', () => {
         });
       });
 
-      it('rethrows a runtime failure with its cause and logs it', async () => {
+      it('keeps a runtime failure and its cause and logs it', async () => {
         // Node.js fetch fails like this when undici gives up on the body.
         const runtimeError = new TypeError('terminated', {
           cause: Object.assign(new Error('Body Timeout Error'), {
@@ -968,10 +982,13 @@ describe('ProtoPediaApiClient', () => {
           logLevel: 'error',
         });
 
-        await expect(client.listPrototypes()).rejects.toBe(runtimeError);
+        const thrown = await client.listPrototypes().catch((e: unknown) => e);
+
+        expect(thrown).toBeInstanceOf(ResponseBodyReadError);
+        expect((thrown as ResponseBodyReadError).cause).toBe(runtimeError);
         expect(error).toHaveBeenCalledWith(
           'HTTP request threw an unexpected error',
-          expect.objectContaining({ error: runtimeError }),
+          expect.objectContaining({ error: thrown }),
         );
       });
 

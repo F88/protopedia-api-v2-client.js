@@ -68,3 +68,31 @@ export class ProtoPediaApiError extends Error {
     };
   }
 }
+
+/**
+ * Configuration bag for constructing a {@link ResponseBodyReadError} instance.
+ */
+export interface ResponseBodyReadErrorOptions {
+  /** Request information. */
+  req: ProtoPediaApiErrorRequest;
+  /** Error from reading the response body. */
+  cause: unknown;
+}
+
+/**
+ * Error thrown when reading the body of a successful response fails and the
+ * request was not aborted.
+ *
+ * A dropped connection is the usual reason, but a custom `fetch` can fail the
+ * body for other reasons. See `cause` for the original error, which differs by
+ * runtime.
+ */
+export class ResponseBodyReadError extends Error {
+  readonly req: ProtoPediaApiErrorRequest;
+
+  constructor(options: ResponseBodyReadErrorOptions) {
+    super('Failed to read the response body', { cause: options.cause });
+    this.name = 'ResponseBodyReadError';
+    this.req = { ...options.req };
+  }
+}
