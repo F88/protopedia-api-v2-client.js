@@ -8,6 +8,7 @@ export default defineConfig({
       exclude: [
         //
         'src/types/',
+        'src/version.ts',
         'node_modules/',
         'dist/',
       ],
