@@ -5,6 +5,7 @@
 ### Fixed
 
 - `fetch` is no longer called with the client as `this`, which failed with `Illegal invocation` in some `fetch` implementations when the `fetch` option was not passed. The supported environments do not change
+- A timeout or caller abort during the body read now fails with `TimeoutError` or the abort reason even if the `fetch` implementation replaces the error, as Chrome does for a body wrapped in a JavaScript stream
 
 ## 5.0.0 - 2026-11-06
 
