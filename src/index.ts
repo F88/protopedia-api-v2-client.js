@@ -4,7 +4,7 @@ export {
   ProtoPediaApiClient,
   createProtoPediaClient,
 } from './client.js';
-export { ProtoPediaApiError } from './errors.js';
+export { ProtoPediaApiError, ResponseBodyReadError } from './errors.js';
 export { type Logger, type LogLevel } from './logger.js';
 
 // Types of protopedia-api-v2 requests and responses

@@ -7,7 +7,7 @@ import {
   toTimeout,
   trimTrailingSlash,
 } from './client-utils.js';
-import { ProtoPediaApiError } from './errors.js';
+import { ProtoPediaApiError, ResponseBodyReadError } from './errors.js';
 import {
   createLoggerConfig,
   getLoggerMethod,
@@ -234,7 +234,10 @@ export class ProtoPediaApiClient {
           throw signal.reason;
         }
         if (response.ok) {
-          throw readError;
+          throw new ResponseBodyReadError({
+            req: { method, url },
+            cause: readError,
+          });
         }
         // The server already sent an error status, so keep it.
         const apiError = buildError(response, method, undefined, readError);

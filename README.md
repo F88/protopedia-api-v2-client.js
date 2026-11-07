@@ -139,6 +139,7 @@ For a comprehensive implementation example using this client, see:
     - [`createProtoPediaClient`](src/client.ts)
 - Errors:
     - [`ProtoPediaApiError`](src/errors.ts)
+    - [`ResponseBodyReadError`](src/errors.ts): reading the body of a successful response failed, and the request was not aborted. The original error is in `cause`
 - Requests and responses:
     - [`ListPrototypesParams`](src/types/protopedia-api-v2/request.ts)
     - [`ListPrototypesApiResponse`](src/types/protopedia-api-v2/response.ts)
